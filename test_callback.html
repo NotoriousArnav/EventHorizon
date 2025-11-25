@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Callback Test</title>
+</head>
+<body>
+    <h1>OAuth Callback Test</h1>
+    <h2>URL Parameters:</h2>
+    <pre id="params"></pre>
+    <h2>Hash Parameters:</h2>
+    <pre id="hash"></pre>
+    
+    <script>
+        // Get URL params (after ?)
+        const urlParams = new URLSearchParams(window.location.search);
+        const params = {};
+        for (const [key, value] of urlParams) {
+            params[key] = value;
+        }
+        document.getElementById('params').textContent = JSON.stringify(params, null, 2);
+        
+        // Get hash params (after #)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const hash = {};
+        for (const [key, value] of hashParams) {
+            hash[key] = value;
+        }
+        document.getElementById('hash').textContent = JSON.stringify(hash, null, 2);
+        
+        // Log to console
+        console.log('URL Params:', params);
+        console.log('Hash Params:', hash);
+    </script>
+</body>
+</html>
