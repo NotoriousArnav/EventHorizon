@@ -11,9 +11,14 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $supabase = app(SupabaseService::class);
-        $accessToken = session('supabase_access_token');
-        $user = $supabase->getUser($accessToken);
+        try {
+            $supabase = app(SupabaseService::class);
+            $accessToken = session('supabase_access_token');
+            $user = $supabase->getUser($accessToken);
+        } catch (\Exception $e) {
+            // Token expired, redirect to login
+            return redirect()->route('login')->with('error', 'Your session has expired. Please login again.');
+        }
 
         // Get organizer's events
         $events = Event::where('organizer_id', $user['id'])

@@ -88,6 +88,13 @@ class SupabaseService
             ]);
 
             return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Token expired or invalid - clear session
+            if ($e->getResponse()->getStatusCode() === 403) {
+                session()->forget(['supabase_access_token', 'supabase_refresh_token', 'supabase_user']);
+                Log::warning('Supabase token expired, session cleared');
+            }
+            throw $e;
         } catch (\Exception $e) {
             Log::error('Supabase GetUser Error: ' . $e->getMessage());
             throw $e;
