@@ -14,14 +14,28 @@ class TicketTypeController extends Controller
 
     public function create(Event $event)
     {
-        $this->authorize('update', $event);
+        $supabase = app(SupabaseService::class);
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
 
         return view('ticket-types.create', compact('event'));
     }
 
     public function store(TicketTypeRequest $request, Event $event)
     {
-        $this->authorize('update', $event);
+        $supabase = app(SupabaseService::class);
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
 
         $data = $request->validated();
         
@@ -39,14 +53,28 @@ class TicketTypeController extends Controller
 
     public function edit(Event $event, TicketType $ticketType)
     {
-        $this->authorize('update', $ticketType);
+        $supabase = app(SupabaseService::class);
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
 
         return view('ticket-types.edit', compact('event', 'ticketType'));
     }
 
     public function update(TicketTypeRequest $request, Event $event, TicketType $ticketType)
     {
-        $this->authorize('update', $ticketType);
+        $supabase = app(SupabaseService::class);
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
 
         $ticketType->update($request->validated());
 
@@ -57,7 +85,14 @@ class TicketTypeController extends Controller
 
     public function destroy(Event $event, TicketType $ticketType)
     {
-        $this->authorize('delete', $ticketType);
+        $supabase = app(SupabaseService::class);
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
 
         $ticketType->delete();
 

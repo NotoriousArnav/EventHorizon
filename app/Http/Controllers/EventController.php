@@ -28,7 +28,6 @@ class EventController extends Controller
 
     public function create()
     {
-        $this->authorize('create', Event::class);
 
         $supabase = app(SupabaseService::class);
         $accessToken = session('supabase_access_token');
@@ -41,7 +40,6 @@ class EventController extends Controller
 
     public function store(EventRequest $request)
     {
-        $this->authorize('create', Event::class);
 
         $supabase = app(SupabaseService::class);
         $accessToken = session('supabase_access_token');
@@ -63,7 +61,6 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
-        $this->authorize('view', $event);
 
         $event->load(['community', 'ticketTypes', 'registrations']);
 
@@ -85,11 +82,14 @@ class EventController extends Controller
 
     public function edit(Event $event)
     {
-        $this->authorize('update', $event);
-
         $supabase = app(SupabaseService::class);
         $accessToken = session('supabase_access_token');
         $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
         
         $communities = Community::where('user_id', $user['id'])->get();
 
@@ -98,7 +98,14 @@ class EventController extends Controller
 
     public function update(EventRequest $request, Event $event)
     {
-        $this->authorize('update', $event);
+        $supabase = app(SupabaseService::class);
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
 
         $event->update($request->validated());
 
@@ -109,7 +116,14 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
-        $this->authorize('delete', $event);
+        $supabase = app(SupabaseService::class);
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
+        
+        // Check if user is the organizer
+        if ($event->organizer_id !== $user['id']) {
+            abort(403, 'Unauthorized');
+        }
 
         $event->delete();
 
