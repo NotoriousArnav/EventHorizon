@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\SupabaseAuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketTypeController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -50,6 +51,11 @@ Route::prefix('events/{event}/tickets')->name('events.tickets.')->middleware('au
     Route::put('/{ticketType}', [TicketTypeController::class, 'update'])->name('update');
     Route::delete('/{ticketType}', [TicketTypeController::class, 'destroy'])->name('destroy');
 });
+
+// Registration Routes (public)
+Route::get('events/{event}/register', [RegistrationController::class, 'create'])->name('registrations.create');
+Route::post('events/{event}/register', [RegistrationController::class, 'store'])->name('registrations.store');
+Route::get('registrations/{registration}/confirmation', [RegistrationController::class, 'confirmation'])->name('registrations.confirmation');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

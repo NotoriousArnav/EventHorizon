@@ -287,12 +287,11 @@
                     </div>
 
                     <!-- RSVP Button -->
-                    @if($event->status === 'published' && !$event->isAtCapacity())
+                    @if($event->status === 'published')
                     <div class="border-t border-gray-700 pt-6 mt-8">
-                        <button class="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white text-lg font-semibold rounded-lg transition">
+                        <a href="{{ route('registrations.create', $event) }}" class="block w-full py-4 bg-purple-600 hover:bg-purple-700 text-white text-lg font-semibold rounded-lg transition text-center">
                             Register for This Event
-                        </button>
-                        <p class="text-center text-sm text-gray-300 mt-2">Registration coming in Phase 2</p>
+                        </a>
                     </div>
                     @endif
                 </div>
