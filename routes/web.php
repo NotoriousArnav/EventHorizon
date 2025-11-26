@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SupabaseAuthController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\TicketTypeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -43,6 +44,15 @@ Route::get('/dashboard', function () {
 
 // Event Management Routes
 Route::resource('events', EventController::class);
+
+// Ticket Type Management Routes (nested under events)
+Route::prefix('events/{event}/tickets')->name('events.tickets.')->group(function () {
+    Route::get('/create', [TicketTypeController::class, 'create'])->name('create');
+    Route::post('/', [TicketTypeController::class, 'store'])->name('store');
+    Route::get('/{ticketType}/edit', [TicketTypeController::class, 'edit'])->name('edit');
+    Route::put('/{ticketType}', [TicketTypeController::class, 'update'])->name('update');
+    Route::delete('/{ticketType}', [TicketTypeController::class, 'destroy'])->name('destroy');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

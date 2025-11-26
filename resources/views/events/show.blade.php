@@ -129,33 +129,82 @@
                     @endif
 
                     <!-- Ticket Types -->
-                    @if($event->ticketTypes->isNotEmpty())
                     <div class="border-t border-gray-700 pt-6">
-                        <h2 class="text-2xl font-semibold text-gray-100 mb-4">Tickets</h2>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-semibold text-gray-100">Tickets</h2>
+                            @auth
+                            @can('update', $event)
+                            <a href="{{ route('events.tickets.create', $event) }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm">
+                                + Add Ticket Type
+                            </a>
+                            @endcan
+                            @endauth
+                        </div>
+
+                        @if($event->ticketTypes->isNotEmpty())
                         <div class="space-y-4">
                             @foreach($event->ticketTypes as $ticket)
-                            <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 flex justify-between items-center">
-                                <div>
-                                    <h3 class="text-lg font-medium text-gray-200">{{ $ticket->name }}</h3>
-                                    @if($ticket->description)
-                                    <p class="text-sm text-gray-400">{{ $ticket->description }}</p>
-                                    @endif
-                                    @if($ticket->quantity_total)
-                                    <p class="text-xs text-gray-500 mt-1">{{ $ticket->quantity_available }} / {{ $ticket->quantity_total }} available</p>
-                                    @endif
-                                </div>
-                                <div class="text-right">
-                                    @if($ticket->is_free)
-                                    <p class="text-xl font-bold text-green-400">FREE</p>
-                                    @else
-                                    <p class="text-xl font-bold text-gray-200">{{ $ticket->currency }} {{ number_format($ticket->price, 2) }}</p>
-                                    @endif
+                            <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-medium text-gray-200">{{ $ticket->name }}</h3>
+                                        @if($ticket->description)
+                                        <p class="text-sm text-gray-400 mt-1">{{ $ticket->description }}</p>
+                                        @endif
+                                        <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                            @if($ticket->quantity_total)
+                                            <span>{{ $ticket->quantity_available }} / {{ $ticket->quantity_total }} available</span>
+                                            @endif
+                                            @if($ticket->sales_start)
+                                            <span>Sales start: {{ $ticket->sales_start->format('M d, Y g:i A') }}</span>
+                                            @endif
+                                            @if($ticket->requires_approval)
+                                            <span class="text-yellow-400">Requires Approval</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="text-right flex items-center space-x-3">
+                                        <div>
+                                            @if($ticket->is_free)
+                                            <p class="text-xl font-bold text-green-400">FREE</p>
+                                            @else
+                                            <p class="text-xl font-bold text-gray-200">{{ $ticket->currency }} {{ number_format($ticket->price, 2) }}</p>
+                                            @endif
+                                        </div>
+                                        @auth
+                                        @can('update', $event)
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('events.tickets.edit', [$event, $ticket]) }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded text-sm transition">
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('events.tickets.destroy', [$event, $ticket]) }}" method="POST" onsubmit="return confirm('Delete this ticket type?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="px-3 py-1 bg-red-900 hover:bg-red-800 text-red-200 rounded text-sm transition">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                        @endcan
+                                        @endauth
+                                    </div>
                                 </div>
                             </div>
                             @endforeach
                         </div>
+                        @else
+                        <div class="bg-gray-900 border border-gray-700 rounded-lg p-8 text-center">
+                            <p class="text-gray-400 mb-4">No ticket types yet</p>
+                            @auth
+                            @can('update', $event)
+                            <a href="{{ route('events.tickets.create', $event) }}" class="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
+                                Add Your First Ticket Type
+                            </a>
+                            @endcan
+                            @endauth
+                        </div>
+                        @endif
                     </div>
-                    @endif
 
                     <!-- RSVP Button -->
                     @if($event->status === 'published' && !$event->isAtCapacity())
