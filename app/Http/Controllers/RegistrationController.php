@@ -90,6 +90,8 @@ class RegistrationController extends Controller
             'user_id' => $userId,
             'ticket_type_id' => $ticketType->id,
             'status' => $status,
+            'attendee_name' => $data['name'],
+            'attendee_email' => $data['email'],
             'registration_data' => [
                 'name' => $data['name'],
                 'email' => $data['email'],
