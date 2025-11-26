@@ -15,9 +15,13 @@ class EventRequest extends FormRequest
     {
         $eventId = $this->route('event')?->id;
 
+        $uniqueRule = $eventId 
+            ? 'unique:events,slug,' . $eventId
+            : 'unique:events,slug';
+
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'alpha_dash', 'unique:events,slug,' . $eventId],
+            'slug' => ['required', 'string', 'max:255', 'alpha_dash', $uniqueRule],
             'description' => ['nullable', 'string'],
             'cover_image_url' => ['nullable', 'url'],
             'location' => ['nullable', 'string', 'max:255'],
