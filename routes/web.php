@@ -35,13 +35,15 @@ Route::get('/auth/callback/debug', function() {
     return view('auth.callback-debug');
 })->name('callback.debug');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
 // Event Management Routes
-Route::resource('events', EventController::class);
+Route::resource('events', EventController::class)->except(['index', 'show']);
+Route::get('events', [EventController::class, 'index'])->name('events.index');
+Route::get('events/{event}', [EventController::class, 'show'])->name('events.show');
 
 // Ticket Type Management Routes (nested under events)
-Route::prefix('events/{event}/tickets')->name('events.tickets.')->group(function () {
+Route::prefix('events/{event}/tickets')->name('events.tickets.')->middleware('auth')->group(function () {
     Route::get('/create', [TicketTypeController::class, 'create'])->name('create');
     Route::post('/', [TicketTypeController::class, 'store'])->name('store');
     Route::get('/{ticketType}/edit', [TicketTypeController::class, 'edit'])->name('edit');
