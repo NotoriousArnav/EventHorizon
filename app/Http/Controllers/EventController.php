@@ -28,7 +28,8 @@ class EventController extends Controller
         $this->authorize('create', Event::class);
 
         $supabase = app(SupabaseService::class);
-        $user = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
         
         $communities = Community::where('user_id', $user['id'])->get();
 
@@ -40,7 +41,8 @@ class EventController extends Controller
         $this->authorize('create', Event::class);
 
         $supabase = app(SupabaseService::class);
-        $user = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
 
         $data = $request->validated();
         $data['organizer_id'] = $user['id'];
@@ -63,7 +65,8 @@ class EventController extends Controller
         $event->load(['community', 'ticketTypes', 'registrations']);
 
         $supabase = app(SupabaseService::class);
-        $user = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
 
         if ($user) {
             $event->views()->create([
@@ -82,7 +85,8 @@ class EventController extends Controller
         $this->authorize('update', $event);
 
         $supabase = app(SupabaseService::class);
-        $user = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
         
         $communities = Community::where('user_id', $user['id'])->get();
 

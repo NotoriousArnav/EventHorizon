@@ -12,7 +12,8 @@ class DashboardController extends Controller
     public function index()
     {
         $supabase = app(SupabaseService::class);
-        $user = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $user = $supabase->getUser($accessToken);
 
         // Get organizer's events
         $events = Event::where('organizer_id', $user['id'])

@@ -27,7 +27,8 @@ class TicketTypePolicy
     public function update(User $user, TicketType $ticketType): bool
     {
         $supabase = app(SupabaseService::class);
-        $currentUser = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $currentUser = $supabase->getUser($accessToken);
         
         return $ticketType->event->organizer_id === $currentUser['id'];
     }
@@ -35,7 +36,8 @@ class TicketTypePolicy
     public function delete(User $user, TicketType $ticketType): bool
     {
         $supabase = app(SupabaseService::class);
-        $currentUser = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $currentUser = $supabase->getUser($accessToken);
         
         return $ticketType->event->organizer_id === $currentUser['id'];
     }
@@ -43,7 +45,8 @@ class TicketTypePolicy
     public function restore(User $user, TicketType $ticketType): bool
     {
         $supabase = app(SupabaseService::class);
-        $currentUser = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $currentUser = $supabase->getUser($accessToken);
         
         return $ticketType->event->organizer_id === $currentUser['id'];
     }
@@ -51,7 +54,8 @@ class TicketTypePolicy
     public function forceDelete(User $user, TicketType $ticketType): bool
     {
         $supabase = app(SupabaseService::class);
-        $currentUser = $supabase->getUser();
+        $accessToken = session('supabase_access_token');
+        $currentUser = $supabase->getUser($accessToken);
         
         return $ticketType->event->organizer_id === $currentUser['id'];
     }
