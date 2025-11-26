@@ -15,7 +15,7 @@
                     <!-- Title & Actions -->
                     <div class="flex justify-between items-start mb-6">
                         <div class="flex-1">
-                            <h1 class="text-4xl font-bold text-gray-100 mb-2">{{ $event->title }}</h1>
+                            <h1 class="text-4xl font-bold text-white mb-2">{{ $event->title }}</h1>
                             
                             @if($event->community)
                             <p class="text-purple-400">
@@ -27,7 +27,7 @@
                         @auth
                         @can('update', $event)
                         <div class="flex space-x-2">
-                            <a href="{{ route('events.edit', $event) }}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition">
+                            <a href="{{ route('events.edit', $event) }}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition">
                                 Edit
                             </a>
                             <form action="{{ route('events.destroy', $event) }}" method="POST" onsubmit="return confirm('Are you sure?')">
@@ -52,10 +52,10 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-400">Date & Time</p>
-                                <p class="text-gray-200 font-medium">{{ $event->start_datetime->format('l, F j, Y') }}</p>
-                                <p class="text-gray-300">{{ $event->start_datetime->format('g:i A') }} - {{ $event->end_datetime->format('g:i A') }}</p>
-                                <p class="text-xs text-gray-500">{{ $event->timezone }}</p>
+                                <p class="text-sm text-gray-300">Date & Time</p>
+                                <p class="text-white font-medium">{{ $event->start_datetime->format('l, F j, Y') }}</p>
+                                <p class="text-white">{{ $event->start_datetime->format('g:i A') }} - {{ $event->end_datetime->format('g:i A') }}</p>
+                                <p class="text-xs text-gray-400">{{ $event->timezone }}</p>
                             </div>
                         </div>
 
@@ -68,10 +68,10 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-400">Location</p>
-                                <p class="text-gray-200 font-medium capitalize">{{ $event->location_type }}</p>
+                                <p class="text-sm text-gray-300">Location</p>
+                                <p class="text-white font-medium capitalize">{{ $event->location_type }}</p>
                                 @if($event->location)
-                                <p class="text-gray-300">{{ $event->location }}</p>
+                                <p class="text-white">{{ $event->location }}</p>
                                 @endif
                             </div>
                         </div>
@@ -85,8 +85,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-400">Capacity</p>
-                                <p class="text-gray-200 font-medium">
+                                <p class="text-sm text-gray-300">Capacity</p>
+                                <p class="text-white font-medium">
                                     @if($event->isAtCapacity())
                                         <span class="text-red-400">Sold Out</span>
                                     @else
@@ -105,12 +105,12 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-400">Status</p>
+                                <p class="text-sm text-gray-300">Status</p>
                                 <span class="inline-block px-3 py-1 text-sm font-medium rounded-full
                                     @if($event->status === 'published') bg-green-900/50 text-green-300
                                     @elseif($event->status === 'draft') bg-yellow-900/50 text-yellow-300
                                     @elseif($event->status === 'cancelled') bg-red-900/50 text-red-300
-                                    @else bg-gray-700 text-gray-300
+                                    @else bg-gray-700 text-white
                                     @endif">
                                     {{ ucfirst($event->status) }}
                                 </span>
@@ -121,8 +121,8 @@
                     <!-- Description -->
                     @if($event->description)
                     <div class="border-t border-gray-700 pt-6 mb-8">
-                        <h2 class="text-2xl font-semibold text-gray-100 mb-4">About This Event</h2>
-                        <div class="text-gray-300 prose prose-invert max-w-none">
+                        <h2 class="text-2xl font-semibold text-white mb-4">About This Event</h2>
+                        <div class="text-white prose prose-invert max-w-none">
                             {!! nl2br(e($event->description)) !!}
                         </div>
                     </div>
@@ -130,7 +130,7 @@
 
                     <!-- Share Buttons -->
                     <div class="border-t border-gray-700 pt-6 mb-8">
-                        <h2 class="text-2xl font-semibold text-gray-100 mb-4">Share This Event</h2>
+                        <h2 class="text-2xl font-semibold text-white mb-4">Share This Event</h2>
                         <div class="flex flex-wrap gap-3">
                             <!-- Twitter -->
                             <a href="https://twitter.com/intent/tweet?text={{ urlencode($event->title) }}&url={{ urlencode(route('events.show', $event)) }}" 
@@ -176,7 +176,7 @@
                             <button 
                                 onclick="copyEventLink()" 
                                 id="copy-link-btn"
-                                class="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition">
+                                class="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
@@ -211,7 +211,7 @@
                     <!-- Ticket Types -->
                     <div class="border-t border-gray-700 pt-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-2xl font-semibold text-gray-100">Tickets</h2>
+                            <h2 class="text-2xl font-semibold text-white">Tickets</h2>
                             @auth
                             @can('update', $event)
                             <a href="{{ route('events.tickets.create', $event) }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm">
@@ -227,11 +227,11 @@
                             <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
-                                        <h3 class="text-lg font-medium text-gray-200">{{ $ticket->name }}</h3>
+                                        <h3 class="text-lg font-medium text-white">{{ $ticket->name }}</h3>
                                         @if($ticket->description)
-                                        <p class="text-sm text-gray-400 mt-1">{{ $ticket->description }}</p>
+                                        <p class="text-sm text-gray-300 mt-1">{{ $ticket->description }}</p>
                                         @endif
-                                        <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                        <div class="flex items-center gap-4 mt-2 text-xs text-gray-400">
                                             @if($ticket->quantity_total)
                                             <span>{{ $ticket->quantity_available }} / {{ $ticket->quantity_total }} available</span>
                                             @endif
@@ -248,13 +248,13 @@
                                             @if($ticket->is_free)
                                             <p class="text-xl font-bold text-green-400">FREE</p>
                                             @else
-                                            <p class="text-xl font-bold text-gray-200">{{ $ticket->currency }} {{ number_format($ticket->price, 2) }}</p>
+                                            <p class="text-xl font-bold text-white">{{ $ticket->currency }} {{ number_format($ticket->price, 2) }}</p>
                                             @endif
                                         </div>
                                         @auth
                                         @can('update', $event)
                                         <div class="flex space-x-2">
-                                            <a href="{{ route('events.tickets.edit', [$event, $ticket]) }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded text-sm transition">
+                                            <a href="{{ route('events.tickets.edit', [$event, $ticket]) }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition">
                                                 Edit
                                             </a>
                                             <form action="{{ route('events.tickets.destroy', [$event, $ticket]) }}" method="POST" onsubmit="return confirm('Delete this ticket type?')">
@@ -274,7 +274,7 @@
                         </div>
                         @else
                         <div class="bg-gray-900 border border-gray-700 rounded-lg p-8 text-center">
-                            <p class="text-gray-400 mb-4">No ticket types yet</p>
+                            <p class="text-gray-300 mb-4">No ticket types yet</p>
                             @auth
                             @can('update', $event)
                             <a href="{{ route('events.tickets.create', $event) }}" class="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
@@ -292,7 +292,7 @@
                         <button class="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white text-lg font-semibold rounded-lg transition">
                             Register for This Event
                         </button>
-                        <p class="text-center text-sm text-gray-400 mt-2">Registration coming in Phase 2</p>
+                        <p class="text-center text-sm text-gray-300 mt-2">Registration coming in Phase 2</p>
                     </div>
                     @endif
                 </div>
