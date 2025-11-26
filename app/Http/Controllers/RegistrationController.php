@@ -30,6 +30,21 @@ class RegistrationController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        // If no ticket types, create a default free ticket
+        if ($ticketTypes->isEmpty()) {
+            $ticketTypes = collect([
+                $event->ticketTypes()->create([
+                    'name' => 'General Admission',
+                    'description' => 'Free event registration',
+                    'price' => 0,
+                    'currency' => 'USD',
+                    'is_free' => true,
+                    'requires_approval' => false,
+                    'sort_order' => 0,
+                ])
+            ]);
+        }
+
         return view('registrations.create', compact('event', 'ticketTypes'));
     }
 
