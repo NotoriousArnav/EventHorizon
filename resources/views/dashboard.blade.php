@@ -1,23 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Event Horizon - Dashboard') }}
+        <h2 class="font-semibold text-xl text-gray-200 leading-tight">
+            Dashboard
         </h2>
     </x-slot>
 
-    <div class="py-12" x-data="eventManager()">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Total Events -->
+                <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border border-gray-700">
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Total Events</p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-gray-100" x-text="events.length"></p>
+                                <p class="text-sm text-gray-400">Total Events</p>
+                                <p class="text-3xl font-bold text-gray-100">{{ $totalEvents }}</p>
                             </div>
-                            <div class="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-full">
-                                <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="p-3 bg-purple-900/50 rounded-full">
+                                <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                             </div>
@@ -25,15 +26,16 @@
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <!-- Upcoming Events -->
+                <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border border-gray-700">
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Upcoming</p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-gray-100" x-text="upcomingCount"></p>
+                                <p class="text-sm text-gray-400">Upcoming Events</p>
+                                <p class="text-3xl font-bold text-gray-100">{{ $upcomingEvents }}</p>
                             </div>
-                            <div class="p-3 bg-green-100 dark:bg-green-900 rounded-full">
-                                <svg class="w-8 h-8 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="p-3 bg-green-900/50 rounded-full">
+                                <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                             </div>
@@ -41,15 +43,16 @@
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <!-- Total Registrations -->
+                <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border border-gray-700">
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Attendees</p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-gray-100" x-text="totalAttendees"></p>
+                                <p class="text-sm text-gray-400">Total Registrations</p>
+                                <p class="text-3xl font-bold text-gray-100">{{ $totalRegistrations }}</p>
                             </div>
-                            <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
-                                <svg class="w-8 h-8 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="p-3 bg-blue-900/50 rounded-full">
+                                <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                                 </svg>
                             </div>
@@ -58,215 +61,139 @@
                 </div>
             </div>
 
-            <!-- Event Management -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <!-- Quick Actions -->
+            <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border border-gray-700 mb-8">
                 <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Events</h3>
-                        <button @click="showModal = true" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">
-                            + Create Event
-                        </button>
-                    </div>
-
-                    <!-- Events List -->
-                    <div class="space-y-4">
-                        <template x-for="event in events" :key="event.id">
-                            <div class="border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex-1">
-                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100" x-text="event.title"></h4>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1" x-text="event.description"></p>
-                                        <div class="flex gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
-                                            <span class="flex items-center gap-1">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                </svg>
-                                                <span x-text="event.date"></span>
-                                            </span>
-                                            <span class="flex items-center gap-1">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                </svg>
-                                                <span x-text="event.location"></span>
-                                            </span>
-                                            <span class="flex items-center gap-1">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                                </svg>
-                                                <span x-text="event.attendees + ' attendees'"></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button @click="editEvent(event)" class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                            </svg>
-                                        </button>
-                                        <button @click="deleteEvent(event.id)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <div x-show="events.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
-                            <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    <h3 class="text-lg font-semibold text-gray-100 mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="{{ route('events.create') }}" class="flex items-center space-x-3 p-4 bg-purple-900/30 hover:bg-purple-900/50 border border-purple-700 rounded-lg transition">
+                            <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
-                            <p>No events yet. Create your first event!</p>
-                        </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-200">Create Event</p>
+                                <p class="text-xs text-gray-400">Start a new event</p>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('events.index') }}" class="flex items-center space-x-3 p-4 bg-blue-900/30 hover:bg-blue-900/50 border border-blue-700 rounded-lg transition">
+                            <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-200">Browse Events</p>
+                                <p class="text-xs text-gray-400">View all events</p>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 p-4 bg-gray-700/50 hover:bg-gray-700 border border-gray-600 rounded-lg transition">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-200">Profile Settings</p>
+                                <p class="text-xs text-gray-400">Update your profile</p>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Modal -->
-        <div x-show="showModal" 
-             x-cloak
-             @click.self="showModal = false"
-             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
-                 @click.stop
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform scale-90"
-                 x-transition:enter-end="opacity-100 transform scale-100">
+            <!-- Your Events -->
+            <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border border-gray-700">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4" x-text="editMode ? 'Edit Event' : 'Create New Event'"></h3>
-                    
-                    <form @submit.prevent="saveEvent" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Event Title</label>
-                            <input type="text" x-model="form.title" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
-                        </div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-100">Your Events</h3>
+                        <a href="{{ route('events.create') }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm">
+                            + Create Event
+                        </a>
+                    </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                            <textarea x-model="form.description" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"></textarea>
-                        </div>
+                    @if($recentEvents->isEmpty())
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="text-gray-400 mb-4">You haven't created any events yet</p>
+                        <a href="{{ route('events.create') }}" class="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
+                            Create Your First Event
+                        </a>
+                    </div>
+                    @else
+                    <div class="space-y-4">
+                        @foreach($recentEvents as $event)
+                        <div class="border border-gray-700 rounded-lg p-4 hover:border-purple-600 transition">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <h4 class="text-lg font-semibold text-gray-100">{{ $event->title }}</h4>
+                                        <span class="px-2 py-1 text-xs rounded-full
+                                            @if($event->status === 'published') bg-green-900/50 text-green-300
+                                            @elseif($event->status === 'draft') bg-yellow-900/50 text-yellow-300
+                                            @else bg-gray-700 text-gray-300
+                                            @endif">
+                                            {{ ucfirst($event->status) }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex flex-wrap gap-4 text-sm text-gray-400">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            {{ $event->start_datetime->format('M d, Y - g:i A') }}
+                                        </span>
+                                        
+                                        @if($event->location)
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            {{ $event->location }}
+                                        </span>
+                                        @endif
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                            <input type="date" x-model="form.date" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
-                        </div>
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                                            </svg>
+                                            {{ $event->ticketTypes->count() }} ticket type(s)
+                                        </span>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
-                            <input type="text" x-model="form.location" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                            </svg>
+                                            {{ $event->registrations()->where('status', 'confirmed')->count() }} registrations
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('events.show', $event) }}" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition text-sm">
+                                        View
+                                    </a>
+                                    <a href="{{ route('events.edit', $event) }}" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm">
+                                        Edit
+                                    </a>
+                                </div>
+                            </div>
                         </div>
+                        @endforeach
+                    </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expected Attendees</label>
-                            <input type="number" x-model="form.attendees" min="1" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
-                        </div>
-
-                        <div class="flex gap-3 pt-4">
-                            <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">
-                                Save
-                            </button>
-                            <button type="button" @click="closeModal" class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-md transition">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+                    @if($events->count() > 5)
+                    <div class="mt-6 text-center">
+                        <a href="{{ route('events.index') }}" class="text-purple-400 hover:text-purple-300 transition">
+                            View All Events →
+                        </a>
+                    </div>
+                    @endif
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        function eventManager() {
-            return {
-                showModal: false,
-                editMode: false,
-                events: [
-                    {
-                        id: 1,
-                        title: 'Tech Conference 2025',
-                        description: 'Annual technology conference featuring industry leaders',
-                        date: '2025-12-15',
-                        location: 'San Francisco, CA',
-                        attendees: 500
-                    },
-                    {
-                        id: 2,
-                        title: 'Music Festival',
-                        description: 'Three-day outdoor music festival',
-                        date: '2025-06-20',
-                        location: 'Austin, TX',
-                        attendees: 2000
-                    }
-                ],
-                form: {
-                    id: null,
-                    title: '',
-                    description: '',
-                    date: '',
-                    location: '',
-                    attendees: 1
-                },
-
-                get upcomingCount() {
-                    const today = new Date().toISOString().split('T')[0];
-                    return this.events.filter(e => e.date >= today).length;
-                },
-
-                get totalAttendees() {
-                    return this.events.reduce((sum, e) => sum + parseInt(e.attendees), 0);
-                },
-
-                saveEvent() {
-                    if (this.editMode) {
-                        const index = this.events.findIndex(e => e.id === this.form.id);
-                        this.events[index] = { ...this.form };
-                    } else {
-                        this.events.push({
-                            id: Date.now(),
-                            ...this.form
-                        });
-                    }
-                    this.closeModal();
-                },
-
-                editEvent(event) {
-                    this.editMode = true;
-                    this.form = { ...event };
-                    this.showModal = true;
-                },
-
-                deleteEvent(id) {
-                    if (confirm('Are you sure you want to delete this event?')) {
-                        this.events = this.events.filter(e => e.id !== id);
-                    }
-                },
-
-                closeModal() {
-                    this.showModal = false;
-                    this.editMode = false;
-                    this.form = {
-                        id: null,
-                        title: '',
-                        description: '',
-                        date: '',
-                        location: '',
-                        attendees: 1
-                    };
-                }
-            }
-        }
-    </script>
-
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
 </x-app-layout>

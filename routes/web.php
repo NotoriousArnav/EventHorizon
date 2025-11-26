@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SupabaseAuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketTypeController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,13 +35,7 @@ Route::get('/auth/callback/debug', function() {
     return view('auth.callback-debug');
 })->name('callback.debug');
 
-Route::get('/dashboard', function () {
-    // Check if user is authenticated via Supabase
-    if (!session()->has('supabase_access_token')) {
-        return redirect()->route('login');
-    }
-    return view('dashboard');
-})->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Event Management Routes
 Route::resource('events', EventController::class);
