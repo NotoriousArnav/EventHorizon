@@ -6,9 +6,12 @@ use App\Http\Requests\TicketTypeRequest;
 use App\Models\Event;
 use App\Models\TicketType;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TicketTypeController extends Controller
 {
+    use AuthorizesRequests;
+
     public function create(Event $event)
     {
         $this->authorize('update', $event);

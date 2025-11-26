@@ -8,9 +8,12 @@ use App\Models\Community;
 use App\Services\SupabaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class EventController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index()
     {
         $events = Event::published()
