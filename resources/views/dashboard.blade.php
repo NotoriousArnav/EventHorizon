@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-white leading-tight">
             Dashboard
         </h2>
     </x-slot>
@@ -14,8 +14,8 @@
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-400">Total Events</p>
-                                <p class="text-3xl font-bold text-gray-100">{{ $totalEvents }}</p>
+                                <p class="text-sm text-white">Total Events</p>
+                                <p class="text-3xl font-bold text-white">{{ $totalEvents }}</p>
                             </div>
                             <div class="p-3 bg-purple-900/50 rounded-full">
                                 <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,8 +31,8 @@
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-400">Upcoming Events</p>
-                                <p class="text-3xl font-bold text-gray-100">{{ $upcomingEvents }}</p>
+                                <p class="text-sm text-white">Upcoming Events</p>
+                                <p class="text-3xl font-bold text-white">{{ $upcomingEvents }}</p>
                             </div>
                             <div class="p-3 bg-green-900/50 rounded-full">
                                 <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,8 +48,8 @@
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-400">Total Registrations</p>
-                                <p class="text-3xl font-bold text-gray-100">{{ $totalRegistrations }}</p>
+                                <p class="text-sm text-white">Total Registrations</p>
+                                <p class="text-3xl font-bold text-white">{{ $totalRegistrations }}</p>
                             </div>
                             <div class="p-3 bg-blue-900/50 rounded-full">
                                 <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,15 +64,15 @@
             <!-- Quick Actions -->
             <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border border-gray-700 mb-8">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-100 mb-4">Quick Actions</h3>
+                    <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <a href="{{ route('events.create') }}" class="flex items-center space-x-3 p-4 bg-purple-900/30 hover:bg-purple-900/50 border border-purple-700 rounded-lg transition">
                             <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
                             <div>
-                                <p class="text-sm font-medium text-gray-200">Create Event</p>
-                                <p class="text-xs text-gray-400">Start a new event</p>
+                                <p class="text-sm font-medium text-white">Create Event</p>
+                                <p class="text-xs text-white">Start a new event</p>
                             </div>
                         </a>
 
@@ -82,18 +82,18 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
                             <div>
-                                <p class="text-sm font-medium text-gray-200">Browse Events</p>
-                                <p class="text-xs text-gray-400">View all events</p>
+                                <p class="text-sm font-medium text-white">Browse Events</p>
+                                <p class="text-xs text-white">View all events</p>
                             </div>
                         </a>
 
                         <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 p-4 bg-gray-700/50 hover:bg-gray-700 border border-gray-600 rounded-lg transition">
-                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
                             <div>
-                                <p class="text-sm font-medium text-gray-200">Profile Settings</p>
-                                <p class="text-xs text-gray-400">Update your profile</p>
+                                <p class="text-sm font-medium text-white">Profile Settings</p>
+                                <p class="text-xs text-white">Update your profile</p>
                             </div>
                         </a>
                     </div>
@@ -104,7 +104,7 @@
             <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border border-gray-700">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold text-gray-100">Your Events</h3>
+                        <h3 class="text-lg font-semibold text-white">Your Events</h3>
                         <a href="{{ route('events.create') }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm">
                             + Create Event
                         </a>
@@ -115,7 +115,7 @@
                         <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        <p class="text-gray-400 mb-4">You haven't created any events yet</p>
+                        <p class="text-white mb-4">You haven't created any events yet</p>
                         <a href="{{ route('events.create') }}" class="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
                             Create Your First Event
                         </a>
@@ -127,17 +127,17 @@
                             <div class="flex justify-between items-start">
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2 mb-2">
-                                        <h4 class="text-lg font-semibold text-gray-100">{{ $event->title }}</h4>
+                                        <h4 class="text-lg font-semibold text-white">{{ $event->title }}</h4>
                                         <span class="px-2 py-1 text-xs rounded-full
                                             @if($event->status === 'published') bg-green-900/50 text-green-300
                                             @elseif($event->status === 'draft') bg-yellow-900/50 text-yellow-300
-                                            @else bg-gray-700 text-gray-300
+                                            @else bg-gray-700 text-white
                                             @endif">
                                             {{ ucfirst($event->status) }}
                                         </span>
                                     </div>
                                     
-                                    <div class="flex flex-wrap gap-4 text-sm text-gray-400">
+                                    <div class="flex flex-wrap gap-4 text-sm text-white">
                                         <span class="flex items-center">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -172,7 +172,7 @@
                                 </div>
                                 
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('events.show', $event) }}" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition text-sm">
+                                    <a href="{{ route('events.show', $event) }}" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-sm">
                                         View
                                     </a>
                                     <a href="{{ route('events.edit', $event) }}" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm">
