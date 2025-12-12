@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w5$ii$3x*_ue!q!b%*_uw&65b!ugt!%gj3&r03+&@#tv*xi7)w'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-w5$ii$3x*_ue!q!b%*_uw&65b!ugt!%gj3&r03+&@#tv*xi7)w')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if os.getenv('DEBUG') == 'True' else False
 
 ALLOWED_HOSTS = ['*']
 
@@ -131,6 +132,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend"
+if os.getenv("EMAIL2CONSOLE", False) == 'True':
+    EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend"
 
 ACCOUNT_EMAIL_REQUIRED=True
