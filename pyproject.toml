@@ -1,0 +1,17 @@
+[project]
+name = "eventhorizon"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django-oauth2",
+    "django>=6.0",
+    "django-allauth[socialaccount]>=65.13.1",
+    "django-rest-framework>=0.1.0",
+    "knox>=0.1.14",
+    "python-dotenv>=1.2.1",
+    "tzdata>=2025.2",
+    "python-openid2",
+    "django-oauth-toolkit",
+]
