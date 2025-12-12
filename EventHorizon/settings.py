@@ -47,10 +47,6 @@ INSTALLED_APPS = [
 
 ]
 
-SOUTH_DATABASE_ADAPTERS = {
-    'default': 'south.db.sqlite3',
-}
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
