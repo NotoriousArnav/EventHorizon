@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load event_extras %}
 
 {% block title %}{{ event.title }} | Mission Profile{% endblock %}
 
@@ -92,6 +93,12 @@
                         Manage Crew Roster
                     </h3>
                     
+                    <div class="mb-4">
+                         <a href="{% url 'event-export' event.slug %}" class="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 uppercase tracking-widest">
+                            Export Data (CSV)
+                        </a>
+                    </div>
+                    
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm whitespace-nowrap">
                             <thead class="text-xs uppercase text-gray-500 border-b border-white/10">
@@ -99,6 +106,7 @@
                                     <th class="px-4 py-3">Personnel</th>
                                     <th class="px-4 py-3">Registered At</th>
                                     <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3">Data</th>
                                     <th class="px-4 py-3 text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -125,6 +133,23 @@
                                         <span class="px-2 py-0.5 rounded text-[10px] bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 uppercase">Waitlist</span>
                                         {% else %}
                                         <span class="px-2 py-0.5 rounded text-[10px] bg-red-900/30 text-red-400 border border-red-500/20 uppercase">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        {% if reg.answers %}
+                                            <button onclick="openAnswersModal('{{ reg.id }}')" class="text-xs text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                View
+                                            </button>
+                                            <!-- Hidden data for JS to read -->
+                                            <script id="answers-data-{{ reg.id }}" type="application/json">
+                                                {{ reg.answers|jsonify|safe }}
+                                            </script>
+                                            <script id="user-data-{{ reg.id }}" type="application/json">
+                                                "{{ reg.participant.username }}"
+                                            </script>
+                                        {% else %}
+                                            <span class="text-gray-600 text-xs">-</span>
                                         {% endif %}
                                     </td>
                                     <td class="px-4 py-3 text-right">
@@ -324,6 +349,81 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- Answers Modal -->
+    <div id="answers-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeAnswersModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-gray-900 border border-white/10 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-display font-bold text-white uppercase tracking-wider mb-2" id="answers-modal-title">
+                                Personnel Data
+                            </h3>
+                            <div class="mt-4 space-y-4" id="answers-content">
+                                <!-- Dynamic content here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-700 shadow-sm px-4 py-2 bg-transparent text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm uppercase tracking-wider" onclick="closeAnswersModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Schema for JS access -->
+    <script id="event-schema" type="application/json">
+        {{ event.registration_schema|jsonify|safe }}
+    </script>
+
+    <script>
+        function openAnswersModal(regId) {
+            const schema = JSON.parse(document.getElementById('event-schema').textContent);
+            const answers = JSON.parse(document.getElementById('answers-data-' + regId).textContent);
+            const username = JSON.parse(document.getElementById('user-data-' + regId).textContent);
+            
+            const modal = document.getElementById('answers-modal');
+            const title = document.getElementById('answers-modal-title');
+            const content = document.getElementById('answers-content');
+            
+            title.textContent = `DATA: ${username}`;
+            content.innerHTML = '';
+            
+            if (schema && schema.length > 0) {
+                schema.forEach(question => {
+                    const answer = answers[question.id];
+                    let displayAnswer = answer;
+                    
+                    if (question.type === 'checkbox') {
+                        displayAnswer = answer ? 'Yes' : 'No';
+                    }
+                    
+                    // Only show if answer is present (or explicit 'No' for checked boxes if desired, but here just showing value)
+                    const div = document.createElement('div');
+                    div.className = 'border-b border-white/5 pb-2 last:border-0';
+                    div.innerHTML = `
+                        <div class="text-xs text-blue-400 uppercase tracking-widest font-bold mb-1">${question.label}</div>
+                        <div class="text-gray-300 text-sm whitespace-pre-wrap">${displayAnswer !== undefined && displayAnswer !== null ? displayAnswer : '<span class="text-gray-600 italic">No Data</span>'}</div>
+                    `;
+                    content.appendChild(div);
+                });
+            } else {
+                content.innerHTML = '<p class="text-gray-500 italic">No additional data recorded.</p>';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeAnswersModal() {
+            document.getElementById('answers-modal').classList.add('hidden');
+        }
+    </script>
 
 </div>
 {% endblock %}

@@ -26,6 +26,11 @@ urlpatterns = [
         name="event-unregister",
     ),
     path(
+        "events/<slug:slug>/export/",
+        views.EventExportView.as_view(),
+        name="event-export",
+    ),
+    path(
         "registration/<int:registration_id>/manage/",
         views.ManageRegistrationView.as_view(),
         name="manage-registration",

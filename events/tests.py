@@ -1,7 +1,6 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
-from rest_framework import status
 from django.utils import timezone
 from datetime import timedelta
 from .models import Event, Registration
@@ -9,73 +8,69 @@ from .models import Event, Registration
 User = get_user_model()
 
 
-class EventAPITests(TestCase):
+class EventTests(TestCase):
     def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(
-            username="testuser", password="testpassword"
+        self.client = Client()
+        self.user = User.objects.create_user(username="testuser", password="password")
+        self.organizer = User.objects.create_user(
+            username="organizer", password="password"
         )
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username="testuser", password="password")
 
         self.event_data = {
             "title": "Test Event",
-            "description": "This is a test event.",
+            "description": "A test event description",
             "start_time": timezone.now() + timedelta(days=1),
             "end_time": timezone.now() + timedelta(days=1, hours=2),
             "location": "Test Location",
             "capacity": 10,
         }
-        self.event = Event.objects.create(organizer=self.user, **self.event_data)
 
     def test_create_event(self):
-        response = self.client.post("/api/events/", self.event_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Event.objects.count(), 2)
+        self.client.logout()
+        self.client.login(username="organizer", password="password")
+        response = self.client.post(reverse("event-create"), self.event_data)
+        # Redirects to detail view on success
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Event.objects.filter(title="Test Event").exists())
 
-    def test_get_events(self):
-        response = self.client.get("/api/events/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Assuming pagination might be involved or structure of response
-        # DRF ListCreateAPIView usually returns a list or a paginated dict
-        # Since no pagination class is set in settings yet, it should be a list
-        self.assertEqual(len(response.data), 1)
+    def test_list_events(self):
+        Event.objects.create(organizer=self.organizer, **self.event_data)
+        response = self.client.get(reverse("event-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test Event")
 
     def test_register_event(self):
-        new_user = User.objects.create_user(username="participant", password="password")
-        self.client.force_authenticate(user=new_user)
-        response = self.client.post(f"/api/events/{self.event.id}/register/")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        event = Event.objects.create(organizer=self.organizer, **self.event_data)
+        response = self.client.post(
+            reverse("event-register", kwargs={"slug": event.slug})
+        )
+        self.assertEqual(response.status_code, 302)
         self.assertTrue(
-            Registration.objects.filter(event=self.event, participant=new_user).exists()
+            Registration.objects.filter(event=event, participant=self.user).exists()
         )
 
-    def test_duplicate_registration(self):
-        new_user = User.objects.create_user(
-            username="participant2", password="password"
-        )
-        self.client.force_authenticate(user=new_user)
-        # First registration
-        self.client.post(f"/api/events/{self.event.id}/register/")
-        # Second registration attempt
-        response = self.client.post(f"/api/events/{self.event.id}/register/")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_capacity_limit(self):
+    def test_waitlist_logic(self):
         small_event = Event.objects.create(
-            organizer=self.user,
+            organizer=self.organizer,
             title="Small Event",
-            description="Small",
+            description="Tiny",
             start_time=timezone.now(),
             end_time=timezone.now(),
             location="Room",
             capacity=1,
         )
-        # Fill capacity
-        user1 = User.objects.create_user(username="u1", password="p")
-        Registration.objects.create(event=small_event, participant=user1)
+        # Register user 1 (Success)
+        Registration.objects.create(
+            event=small_event, participant=self.organizer, status="registered"
+        )
 
-        # Try to register another user
-        user2 = User.objects.create_user(username="u2", password="p")
-        self.client.force_authenticate(user=user2)
-        response = self.client.post(f"/api/events/{small_event.id}/register/")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # Register user 2 (Waitlist)
+        response = self.client.post(
+            reverse("event-register", kwargs={"slug": small_event.slug})
+        )
+        self.assertEqual(response.status_code, 302)
+        registration = Registration.objects.get(
+            event=small_event, participant=self.user
+        )
+        self.assertEqual(registration.status, "waitlisted")

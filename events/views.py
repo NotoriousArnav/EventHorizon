@@ -12,6 +12,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.utils.text import slugify
+import csv
+from django.http import HttpResponse
 from .models import Event, Registration
 
 
@@ -295,6 +297,61 @@ class EventUnregistrationView(LoginRequiredMixin, View):
 
 
 from django.core.mail import send_mail
+
+
+import csv
+from django.http import HttpResponse
+
+
+class EventExportView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def get(self, request, slug):
+        event = get_object_or_404(Event, slug=slug)
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = (
+            f'attachment; filename="{event.slug}_roster.csv"'
+        )
+
+        writer = csv.writer(response)
+
+        # Header row
+        headers = ["Username", "Email", "Status", "Registered At"]
+
+        # Add dynamic headers from schema
+        question_ids = []
+        if event.registration_schema:
+            for question in event.registration_schema:
+                headers.append(question["label"])
+                question_ids.append(question["id"])
+
+        writer.writerow(headers)
+
+        # Data rows
+        registrations = event.registrations.select_related("participant").all()
+        for reg in registrations:
+            row = [
+                reg.participant.username,
+                reg.participant.email,
+                reg.status,
+                reg.registered_at.strftime("%Y-%m-%d %H:%M:%S"),
+            ]
+
+            # Add dynamic answers
+            if event.registration_schema:
+                for q_id in question_ids:
+                    # Retrieve answer safely, handle booleans for checkboxes
+                    answer = reg.answers.get(q_id, "")
+                    if isinstance(answer, bool):
+                        answer = "Yes" if answer else "No"
+                    row.append(answer)
+
+            writer.writerow(row)
+
+        return response
+
+    def test_func(self):
+        event = get_object_or_404(Event, slug=self.kwargs["slug"])
+        return self.request.user == event.organizer
 
 
 class ManageRegistrationView(LoginRequiredMixin, UserPassesTestMixin, View):
