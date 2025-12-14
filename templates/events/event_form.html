@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Initialize Mission | Event Horizon{% endblock %}
+
+{% block content %}
+<div class="min-h-screen relative overflow-x-hidden font-sans">
+    
+    <!-- Deep Space Background -->
+    <div class="fixed inset-0 z-0">
+        <div class="absolute inset-0 bg-black"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="relative z-50 border-b border-white/5 bg-black/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="/" class="font-display font-bold text-2xl text-white tracking-wider hover:text-orange-500 transition-colors">
+                        EVENT<span class="text-orange-500">HORIZON</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="{% url 'event-list' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-8">
+            <h1 class="text-3xl font-display font-bold text-white uppercase tracking-wider">
+                {% if object %}Update Mission Parameters{% else %}Initialize New Mission{% endif %}
+            </h1>
+            <p class="text-gray-400 mt-2">
+                {% if object %}Modify existing event parameters. Changes will be propagated to all registered personnel.{% else %}Define mission protocols, coordinates, and personnel capacity.{% endif %}
+            </p>
+        </div>
+
+        <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden">
+            <div class="p-8">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="rounded-md bg-red-900/20 border border-red-500/50 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-400">Submission Error</h3>
+                                <div class="mt-2 text-sm text-red-300">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Title -->
+                    <div class="space-y-1">
+                        <label for="{{ form.title.id_for_label }}" class="block text-xs font-bold text-orange-500 uppercase tracking-widest">
+                            Mission Codename (Title)
+                        </label>
+                        <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default:'' }}" 
+                            class="appearance-none block w-full px-4 py-3 border border-white/10 rounded-lg bg-black/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                            placeholder="e.g. OPERATION NEBULA WALK">
+                        {% if form.title.errors %}
+                        <p class="text-xs text-red-400 mt-1">{{ form.title.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="space-y-1">
+                        <label for="{{ form.description.id_for_label }}" class="block text-xs font-bold text-blue-500 uppercase tracking-widest">
+                            Mission Briefing
+                        </label>
+                        <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" rows="5"
+                            class="appearance-none block w-full px-4 py-3 border border-white/10 rounded-lg bg-black/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="Detailed mission objectives and requirements...">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <p class="text-xs text-red-400 mt-1">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Start Time -->
+                        <div class="space-y-1">
+                            <label for="{{ form.start_time.id_for_label }}" class="block text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                Launch Sequence (Start)
+                            </label>
+                            <input type="datetime-local" name="{{ form.start_time.name }}" id="{{ form.start_time.id_for_label }}" value="{{ form.start_time.value|date:'Y-m-d\TH:i' }}" 
+                                class="appearance-none block w-full px-4 py-3 border border-white/10 rounded-lg bg-black/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                            {% if form.start_time.errors %}
+                            <p class="text-xs text-red-400 mt-1">{{ form.start_time.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- End Time -->
+                        <div class="space-y-1">
+                            <label for="{{ form.end_time.id_for_label }}" class="block text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                Mission Conclude (End)
+                            </label>
+                            <input type="datetime-local" name="{{ form.end_time.name }}" id="{{ form.end_time.id_for_label }}" value="{{ form.end_time.value|date:'Y-m-d\TH:i' }}" 
+                                class="appearance-none block w-full px-4 py-3 border border-white/10 rounded-lg bg-black/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                            {% if form.end_time.errors %}
+                            <p class="text-xs text-red-400 mt-1">{{ form.end_time.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Location -->
+                        <div class="space-y-1">
+                            <label for="{{ form.location.id_for_label }}" class="block text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                Coordinates (Location)
+                            </label>
+                            <input type="text" name="{{ form.location.name }}" id="{{ form.location.id_for_label }}" value="{{ form.location.value|default:'' }}" 
+                                class="appearance-none block w-full px-4 py-3 border border-white/10 rounded-lg bg-black/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                placeholder="Sector 7, Station Alpha">
+                            {% if form.location.errors %}
+                            <p class="text-xs text-red-400 mt-1">{{ form.location.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="space-y-1">
+                            <label for="{{ form.capacity.id_for_label }}" class="block text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                Crew Capacity
+                            </label>
+                            <input type="number" name="{{ form.capacity.name }}" id="{{ form.capacity.id_for_label }}" value="{{ form.capacity.value|default:'' }}" 
+                                class="appearance-none block w-full px-4 py-3 border border-white/10 rounded-lg bg-black/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                            {% if form.capacity.errors %}
+                            <p class="text-xs text-red-400 mt-1">{{ form.capacity.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Registration Schema Section -->
+                    <div class="pt-6 border-t border-white/10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-display font-bold text-white uppercase tracking-wider">Registration Protocol</h3>
+                                <p class="text-xs text-gray-400">Configure data collection requirements for crew members.</p>
+                            </div>
+                            <button type="button" id="add-question-btn" class="text-xs font-medium text-blue-400 hover:text-blue-300 uppercase tracking-wider border border-blue-500/30 px-3 py-1 rounded bg-blue-900/10">
+                                + Add Requirement
+                            </button>
+                        </div>
+                        
+                        <div id="questions-container" class="space-y-4">
+                            <!-- Questions will be injected here via JS -->
+                            {% if object.registration_schema %}
+                                {% for question in object.registration_schema %}
+                                <div class="question-item grid grid-cols-12 gap-4 bg-black/30 p-4 rounded border border-white/5 relative group">
+                                    <div class="col-span-8">
+                                        <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Question Label</label>
+                                        <input type="text" name="question_label_{{ forloop.counter }}" value="{{ question.label }}" class="block w-full bg-transparent border-b border-gray-700 focus:border-blue-500 text-sm text-white focus:outline-none py-1" placeholder="e.g. Job Title">
+                                    </div>
+                                    <div class="col-span-3">
+                                        <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Response Type</label>
+                                        <select name="question_type_{{ forloop.counter }}" class="block w-full bg-transparent border-b border-gray-700 focus:border-blue-500 text-sm text-gray-300 focus:outline-none py-1">
+                                            <option value="text" {% if question.type == 'text' %}selected{% endif %}>Text Input</option>
+                                            <option value="checkbox" {% if question.type == 'checkbox' %}selected{% endif %}>Checkbox</option>
+                                            <option value="textarea" {% if question.type == 'textarea' %}selected{% endif %}>Long Text</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-1 flex items-center justify-end">
+                                        <button type="button" class="text-gray-600 hover:text-red-500 transition-colors remove-question-btn">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                    <input type="hidden" name="question_id_{{ forloop.counter }}" value="{{ question.id }}">
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-6 text-gray-500 text-xs italic border border-dashed border-white/5 rounded" id="no-questions-msg">
+                                    No custom data requirements set. Standard protocol applies.
+                                </div>
+                            {% endif %}
+                        </div>
+                        <input type="hidden" name="question_count" id="question_count" value="{{ object.registration_schema|length|default:0 }}">
+                    </div>
+
+                    <div class="pt-6 border-t border-white/5 flex items-center justify-end gap-4">
+                        <a href="{% url 'event-list' %}" class="px-6 py-3 border border-white/10 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all">
+                            Abort
+                        </a>
+                        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-lg shadow-lg shadow-orange-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                            {% if object %}Update Parameters{% else %}Initiate Launch{% endif %}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('questions-container');
+            const addBtn = document.getElementById('add-question-btn');
+            const countInput = document.getElementById('question_count');
+            const noQuestionsMsg = document.getElementById('no-questions-msg');
+            
+            let count = parseInt(countInput.value);
+
+            addBtn.addEventListener('click', function() {
+                count++;
+                countInput.value = count;
+                
+                if (noQuestionsMsg) {
+                    noQuestionsMsg.style.display = 'none';
+                }
+                
+                const div = document.createElement('div');
+                div.className = 'question-item grid grid-cols-12 gap-4 bg-black/30 p-4 rounded border border-white/5 relative group animate-fade-in mb-4';
+                div.innerHTML = `
+                    <div class="col-span-8">
+                        <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Question Label</label>
+                        <input type="text" name="question_label_${count}" class="block w-full bg-transparent border-b border-gray-700 focus:border-blue-500 text-sm text-white focus:outline-none py-1" placeholder="e.g. Job Title" required>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Response Type</label>
+                        <select name="question_type_${count}" class="block w-full bg-transparent border-b border-gray-700 focus:border-blue-500 text-sm text-gray-300 focus:outline-none py-1">
+                            <option value="text">Text Input</option>
+                            <option value="checkbox">Checkbox</option>
+                            <option value="textarea">Long Text</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 flex items-center justify-end">
+                        <button type="button" class="text-gray-600 hover:text-red-500 transition-colors remove-question-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <input type="hidden" name="question_id_${count}" value="new_${Date.now()}">
+                `;
+                
+                container.appendChild(div);
+            });
+            
+            // Delegate event for remove buttons
+            container.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-question-btn')) {
+                    const item = e.target.closest('.question-item');
+                    item.remove();
+                    // Optional: re-index or just handle gaps in backend
+                    // Check if empty
+                    if (container.children.length === 0 || (container.children.length === 1 && noQuestionsMsg)) {
+                         if(noQuestionsMsg) noQuestionsMsg.style.display = 'block';
+                    }
+                }
+            });
+        });
+    </script>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-black font-sans">
+  
+  <!-- Subtle Background Stars -->
+  <div class="absolute inset-0 z-0">
+    <div class="stars-static"></div>
+  </div>
+  <style>
+    .stars-static {
+       background-image: radial-gradient(white 1px, transparent 0);
+       background-size: 50px 50px;
+       opacity: 0.1;
+       width: 100%; height: 100%;
+    }
+  </style>
+
+  <div class="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(255,100,0,0.1)] text-center">
+    
+    <div class="mb-8">
+       <h2 class="text-3xl font-bold tracking-tight text-white uppercase tracking-widest">{% trans "Sign In" %}</h2>
+       <p class="mt-2 text-sm text-gray-400">
+           {% blocktrans with provider.name as provider %}You are about to connect via {{ provider }}.{% endblocktrans %}
+       </p>
+    </div>
+
+    <form class="space-y-6" method="post">
+      {% csrf_token %}
+      
+      <div class="p-4 rounded bg-white/5 border border-white/10 text-sm text-gray-300">
+          <p>{% trans "Confirm authorization to access your orbital data." %}</p>
+      </div>
+
+      <button type="submit" class="flex w-full justify-center rounded bg-orange-600 px-3 py-3 text-sm font-bold text-white uppercase tracking-wider shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 transition-all hover:shadow-[0_0_20px_rgba(255,100,0,0.4)]">
+        {% trans "Continue" %}
+      </button>
+      
+      <div class="mt-4">
+          <a href="{% url 'account_login' %}" class="text-xs uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
+              {% trans "Abort Mission" %}
+          </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

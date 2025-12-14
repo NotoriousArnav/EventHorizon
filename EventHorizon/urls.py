@@ -14,12 +14,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from oauth2_provider import urls as oauth2_urls
-
 import os
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 admin.site.site_header = os.getenv("DJANGO_SITE_HEADER", "Event Horizon")
 admin.site.site_title = os.getenv("DJANGO_SITE_TITLE", "Event Horizon")
@@ -27,8 +28,14 @@ admin.site.index_title = os.getenv("DJANGO_INDEX_TITLE", "Event Horizon")
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('o/', include(oauth2_urls)),
-    path('accounts/', include('allauth.urls')),
-    path('api-auth/', include('rest_framework.urls'))
+    path("admin/", admin.site.urls),
+    path("o/", include(oauth2_urls)),
+    path("accounts/", include("allauth.urls")),
+    path("accounts/", include("users.urls")),
+    path("api-auth/", include("rest_framework.urls")),
+    path("", include("events.urls")),
+    path("", include("home.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Confirm Abort | {{ object.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen relative overflow-x-hidden font-sans flex items-center justify-center">
+    
+    <!-- Deep Space Background -->
+    <div class="fixed inset-0 z-0">
+        <div class="absolute inset-0 bg-black"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+    </div>
+
+    <!-- Alert Box -->
+    <div class="relative z-10 max-w-lg w-full px-4">
+        <div class="bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-red-500/30 overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.2)]">
+            
+            <!-- Warning Header -->
+            <div class="bg-red-900/20 p-6 border-b border-red-500/20 flex items-center gap-4">
+                <div class="bg-red-500/10 rounded-full p-3 border border-red-500/20 animate-pulse">
+                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-display font-bold text-white uppercase tracking-wider">Warning: Abort Mission</h2>
+                    <p class="text-xs text-red-400 font-mono uppercase">Irreversible Action Detected</p>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <p class="text-gray-300 mb-6">
+                    You are about to permanently delete the mission profile:
+                    <strong class="text-white block mt-2 text-lg">{{ object.title }}</strong>
+                </p>
+                <p class="text-sm text-gray-400 mb-8 bg-black/30 p-4 rounded border border-white/5">
+                    This action will remove all mission data, including registration records and logs. This data cannot be recovered.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="flex gap-4">
+                        <a href="{% url 'event-detail' object.slug %}" class="flex-1 py-3 text-center border border-white/10 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all uppercase tracking-wide">
+                            Cancel
+                        </a>
+                        <button type="submit" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-lg shadow-red-900/20 transition-all uppercase tracking-wide">
+                            Confirm Abort
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

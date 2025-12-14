@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-black font-sans">
+  <div class="absolute inset-0 z-0">
+    <div class="stars-static"></div>
+  </div>
+  <style>
+    .stars-static {
+       background-image: radial-gradient(white 1px, transparent 0);
+       background-size: 50px 50px;
+       opacity: 0.1;
+       width: 100%; height: 100%;
+    }
+  </style>
+
+  <div class="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(255,100,0,0.1)] text-center">
+    
+    <div class="mb-8">
+       <h2 class="text-3xl font-bold tracking-tight text-white uppercase tracking-widest">{% trans "Verification Sent" %}</h2>
+       <p class="mt-4 text-sm text-gray-400">
+           {% trans "We have dispatched a verification signal to your email address." %}
+       </p>
+    </div>
+
+    <div class="mt-6">
+        <a href="{% url 'account_email' %}" class="inline-block rounded bg-white/10 px-4 py-2 text-sm font-bold text-white uppercase tracking-wider hover:bg-white/20 transition-all">
+            {% trans "Manage Communications" %}
+        </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

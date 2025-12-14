@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load allauth socialaccount social_utils %}
+
+{% block content %}
+<div class="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-black font-sans">
+  
+  <!-- Subtle Background Stars -->
+  <div class="absolute inset-0 z-0">
+    <div class="stars-static"></div>
+  </div>
+  <style>
+    .stars-static {
+       background-image: radial-gradient(white 1px, transparent 0);
+       background-size: 50px 50px;
+       opacity: 0.1;
+       width: 100%; height: 100%;
+    }
+  </style>
+
+  <div class="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(255,100,0,0.1)]">
+    
+    <div class="text-center mb-8">
+       <h2 class="text-3xl font-bold tracking-tight text-white uppercase tracking-widest">Identify</h2>
+       <p class="mt-2 text-sm text-gray-400">Enter your credentials to access the terminal.</p>
+    </div>
+
+    <form class="space-y-6" method="POST" action="{% url 'account_login' %}">
+      {% csrf_token %}
+      
+      {% if form.errors %}
+      <div class="rounded-md bg-red-900/20 border border-red-500/50 p-4 mb-4">
+        <div class="flex">
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-400">Authentication Failed</h3>
+            <div class="mt-2 text-sm text-red-400/80">
+              <ul role="list" class="list-disc space-y-1 pl-5">
+                {% for field in form %}
+                  {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div>
+        <label for="{{ form.login.id_for_label }}" class="block text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Email / Username</label>
+        <div class="mt-1">
+          <input id="{{ form.login.id_for_label }}" name="{{ form.login.name }}" type="text" autocomplete="username" required 
+                 class="block w-full rounded bg-white/5 border border-white/10 py-2 px-3 text-white placeholder-gray-600 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm transition-colors">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label for="{{ form.password.id_for_label }}" class="block text-xs font-medium uppercase tracking-wider text-gray-500">Password</label>
+          <div class="text-xs">
+            <a href="{% url 'account_reset_password' %}" class="font-medium text-orange-400 hover:text-orange-300">Recover Code?</a>
+          </div>
+        </div>
+        <div class="mt-1">
+          <input id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" type="password" autocomplete="current-password" required 
+                 class="block w-full rounded bg-white/5 border border-white/10 py-2 px-3 text-white placeholder-gray-600 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm transition-colors">
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" class="flex w-full justify-center rounded bg-orange-600 px-3 py-2 text-sm font-bold text-white uppercase tracking-wider shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 transition-all hover:shadow-[0_0_20px_rgba(255,100,0,0.4)]">
+            Authenticate
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-8">
+      {% get_configured_providers as configured_providers %}
+      
+      {% if configured_providers %}
+      <div class="relative">
+        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+          <div class="w-full border-t border-gray-700"></div>
+        </div>
+        <div class="relative flex justify-center text-xs uppercase tracking-widest">
+          <span class="bg-black/80 px-2 text-gray-500 rounded">Orbital Link</span>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 gap-4">
+        {% for provider in configured_providers %}
+        <a href="{% provider_login_url provider %}" class="flex w-full items-center justify-center gap-3 rounded bg-white/5 px-3 py-2 text-white border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all {{ provider|provider_class }}">
+          <svg class="h-5 w-5 opacity-80" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+             <path fill-rule="evenodd" d="{{ provider|provider_icon }}" clip-rule="evenodd" />
+          </svg>
+          <span class="text-xs font-bold uppercase tracking-wider">{{ provider|provider_name }}</span>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+         <p class="mt-6 text-center text-xs text-gray-600 uppercase tracking-widest">No External Links Detected</p>
+      {% endif %}
+    </div>
+
+    <p class="mt-8 text-center text-xs text-gray-500">
+      Unregistered Entity?
+      <a href="{% url 'account_signup' %}" class="font-semibold text-orange-400 hover:text-orange-300 ml-1 uppercase tracking-wider">Initialize Profile</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
