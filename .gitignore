@@ -12,3 +12,4 @@ staticfiles/
 *.pyo
 *.pyd
 *.mo
+php-client/config.php
