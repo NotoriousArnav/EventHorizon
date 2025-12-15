@@ -127,7 +127,12 @@ if ($action === 'edit' && isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] !== '
 
 // Determine Current User ID (for ownership checks) - simple check
 $meResponse = make_request(DJANGO_BASE_URL . '/accounts/api/me/', 'GET', [], $accessToken);
-$myUserId = $meResponse['data']['id'] ?? null;
+$myUserData = $meResponse['data'] ?? [];
+$myUserId = $myUserData['id'] ?? null;
+$myFullName = trim(($myUserData['first_name'] ?? '') . ' ' . ($myUserData['last_name'] ?? ''));
+if (empty($myFullName)) {
+    $myFullName = $myUserData['username'] ?? 'Unknown User';
+}
 
 ?>
 <!DOCTYPE html>
@@ -156,17 +161,54 @@ $myUserId = $meResponse['data']['id'] ?? null;
         form label { display: block; margin-top: 10px; color: #94a3b8; }
         form input, form textarea { width: 100%; padding: 8px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 4px; margin-top: 5px; font-family: inherit; }
         .header-row { display: flex; justify-content: space-between; align-items: center; }
-        .share-link { background: #334155; padding: 2px 5px; border-radius: 3px; font-size: 0.8em; color: #cbd5e1; }
+        .share-link { 
+            background: #334155; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 0.85em; 
+            color: #cbd5e1; 
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+            user-select: none;
+        }
+        .share-link:hover {
+            background: #475569;
+            color: white;
+        }
+        .share-link:active {
+            transform: scale(0.98);
+        }
     </style>
+    <script>
+        function copyToClipboard(text, element) {
+            navigator.clipboard.writeText(text).then(function() {
+                const originalText = element.innerText;
+                element.innerText = "✓ Copied to Clipboard!";
+                element.style.background = "#059669"; // Green
+                element.style.color = "#ffffff";
+                
+                setTimeout(() => {
+                    element.innerText = originalText;
+                    element.style.background = ""; 
+                    element.style.color = "";
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                alert("Failed to copy to clipboard. Please copy manually.");
+            });
+        }
+    </script>
 </head>
 <body>
 <div class="container">
     <div class="header-row">
         <h1>> DASHBOARD_ACCESS</h1>
         <div>
-            <span style="color: #94a3b8; margin-right: 10px;">User ID: <?php echo htmlspecialchars($myUserId); ?></span>
+            <span style="color: #94a3b8; margin-right: 10px;">User: <?php echo htmlspecialchars($myFullName); ?></span>
             <a href="?action=logout" class="btn btn-danger">LOGOUT</a>
         </div>
+    </div>
     </div>
 
     <?php if ($message): ?>
@@ -192,7 +234,10 @@ $myUserId = $meResponse['data']['id'] ?? null;
                         <div class="meta">
                             Date: <?php echo date('Y-m-d H:i', strtotime($event['start_time'])); ?> | 
                             Loc: <?php echo htmlspecialchars($event['location']); ?> |
-                            Organizer: <?php echo htmlspecialchars($event['organizer']['username']); ?>
+                            Organizer: <?php 
+                                $orgName = trim(($event['organizer']['first_name'] ?? '') . ' ' . ($event['organizer']['last_name'] ?? ''));
+                                echo htmlspecialchars(empty($orgName) ? $event['organizer']['username'] : $orgName); 
+                            ?>
                         </div>
                         <p><?php echo nl2br(htmlspecialchars($event['description'])); ?></p>
                         
@@ -201,7 +246,16 @@ $myUserId = $meResponse['data']['id'] ?? null;
                                 <a href="?action=edit&id=<?php echo $event['id']; ?>" class="btn">Edit</a>
                                 <a href="?action=delete&id=<?php echo $event['id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure? This cannot be undone.');">Delete</a>
                             <?php endif; ?>
-                            <span class="share-link">Share: <?php echo DJANGO_BASE_URL . '/events/' . $event['id']; ?></span>
+                            <span class="share-link" onclick="copyToClipboard('<?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?>', this)">Share: <?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?></span>
+                        </div>
+                        <p><?php echo nl2br(htmlspecialchars($event['description'])); ?></p>
+                        
+                        <div class="actions">
+                            <?php if (isset($event['organizer']['id']) && $event['organizer']['id'] == $myUserId): ?>
+                                <a href="?action=edit&id=<?php echo $event['id']; ?>" class="btn">Edit</a>
+                                <a href="?action=delete&id=<?php echo $event['id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure? This cannot be undone.');">Delete</a>
+                            <?php endif; ?>
+                            <span class="share-link" onclick="copyToClipboard('<?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?>', this)">Share: <?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>

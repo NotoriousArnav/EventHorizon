@@ -8,7 +8,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email"]
+        fields = ["id", "username", "email", "first_name", "last_name"]
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -29,8 +29,9 @@ class EventSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "is_registered",
+            "slug",
         ]
-        read_only_fields = ["organizer", "created_at", "updated_at"]
+        read_only_fields = ["organizer", "created_at", "updated_at", "slug"]
 
     def get_is_registered(self, obj):
         request = self.context.get("request")
