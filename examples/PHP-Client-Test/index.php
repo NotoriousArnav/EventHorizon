@@ -29,7 +29,7 @@ session_start();
         'client_id' => CLIENT_ID,
         'redirect_uri' => REDIRECT_URI,
         'response_type' => 'code',
-        // 'scope' => 'read write' // Optional: depending on your Django setup
+        'scope' => 'openid read write' // Requesting OpenID Connect scope
     ]);
     
     $loginUrl = AUTHORIZE_URL . '?' . $queryParams;

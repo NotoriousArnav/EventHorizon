@@ -167,5 +167,18 @@ ACCOUNT_EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = "profile"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    "SCOPES": {
+        "read": "Read scope",
+        "write": "Write scope",
+        "groups": "Access to your groups",
+        "openid": "OpenID Connect scope",
+    },
+    "OIDC_ENABLED": True,
+    "OIDC_RSA_PRIVATE_KEY": os.environ.get("OIDC_RSA_PRIVATE_KEY"),
+    "OIDC_ISS_ENDPOINT": "http://127.0.0.1:8000/o",
+}
+
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
