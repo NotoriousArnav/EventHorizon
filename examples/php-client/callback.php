@@ -14,13 +14,13 @@ function make_post_request($url, $params) {
     $response = curl_exec($ch);
     
     if ($response === false) {
-        return ['error' => 'cURL Error: ' . curl_error($ch)];
+        return array('error' => 'cURL Error: ' . curl_error($ch));
     }
     
     // Attempt decode
     $decoded = json_decode($response, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        return ['error' => 'JSON Decode Error', 'raw_response' => $response];
+        return array('error' => 'JSON Decode Error', 'raw_response' => $response);
     }
     
     return $decoded;
@@ -29,21 +29,21 @@ function make_post_request($url, $params) {
 function make_get_request($url, $accessToken) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         "Authorization: Bearer " . $accessToken
-    ]);
+    ));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     $response = curl_exec($ch);
     
     if ($response === false) {
-        return ['error' => 'cURL Error: ' . curl_error($ch)];
+        return array('error' => 'cURL Error: ' . curl_error($ch));
     }
     
     // Attempt decode
     $decoded = json_decode($response, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        return ['error' => 'JSON Decode Error', 'raw_response' => $response];
+        return array('error' => 'JSON Decode Error', 'raw_response' => $response);
     }
     
     return $decoded;
@@ -82,14 +82,14 @@ function make_get_request($url, $accessToken) {
         echo "<h2>1. Code Exchange Protocol</h2>";
         echo "<p>Received Authorization Code: " . htmlspecialchars($_GET['code']) . "</p>";
 
-        $tokenResponse = make_post_request(TOKEN_URL, [
+        $tokenResponse = make_post_request(TOKEN_URL, array(
             'grant_type' => 'authorization_code',
             'code' => $_GET['code'],
             'redirect_uri' => REDIRECT_URI,
             'client_id' => CLIENT_ID,
             'client_secret' => CLIENT_SECRET,
             'code_verifier' => $verifier,
-        ]);
+        ));
 
         if (isset($tokenResponse['access_token'])) {
             $accessToken = $tokenResponse['access_token'];
@@ -101,10 +101,9 @@ function make_get_request($url, $accessToken) {
             echo "<h2>2. Data Retrieval Protocol</h2>";
             echo "<p>Fetching user data from <code>/api/me/</code>...</p>";
 
-            // NOTE: You might need to adjust this endpoint based on your exact URL structure in 'users/urls.py'
-            // Commonly it might be '/api/auth/user/', '/api/users/profile/', or similar.
-            // Using a generic guess here, you might need to update this line.
-            $apiEndpoint = API_URL . 'me/'; 
+            // Update this endpoint to match your 'users/urls.py'
+            // The default accounts/api/me/ is used in dashboard.php
+            $apiEndpoint = DJANGO_BASE_URL . '/accounts/api/me/'; 
             
             $userData = make_get_request($apiEndpoint, $accessToken);
 

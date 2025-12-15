@@ -43,7 +43,7 @@ if (!isset($_SESSION['access_token'])) {
 }
 
 $accessToken = $_SESSION['access_token'];
-$action = $_GET['action'] ?? 'list';
+$action = isset($_GET['action']) ? $_GET['action'] : 'list';
 $error = null;
 $message = null;
 
@@ -127,11 +127,13 @@ if ($action === 'edit' && isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] !== '
 
 // Determine Current User ID (for ownership checks) - simple check
 $meResponse = make_request(DJANGO_BASE_URL . '/accounts/api/me/', 'GET', [], $accessToken);
-$myUserData = $meResponse['data'] ?? [];
-$myUserId = $myUserData['id'] ?? null;
-$myFullName = trim(($myUserData['first_name'] ?? '') . ' ' . ($myUserData['last_name'] ?? ''));
+$myUserData = isset($meResponse['data']) ? $meResponse['data'] : [];
+$myUserId = isset($myUserData['id']) ? $myUserData['id'] : null;
+$firstName = isset($myUserData['first_name']) ? $myUserData['first_name'] : '';
+$lastName = isset($myUserData['last_name']) ? $myUserData['last_name'] : '';
+$myFullName = trim($firstName . ' ' . $lastName);
 if (empty($myFullName)) {
-    $myFullName = $myUserData['username'] ?? 'Unknown User';
+    $myFullName = isset($myUserData['username']) ? $myUserData['username'] : 'Unknown User';
 }
 
 ?>
@@ -235,20 +237,23 @@ if (empty($myFullName)) {
                             Date: <?php echo date('Y-m-d H:i', strtotime($event['start_time'])); ?> | 
                             Loc: <?php echo htmlspecialchars($event['location']); ?> |
                             Organizer: <?php 
-                                $orgName = trim(($event['organizer']['first_name'] ?? '') . ' ' . ($event['organizer']['last_name'] ?? ''));
+                                $orgFirst = isset($event['organizer']['first_name']) ? $event['organizer']['first_name'] : '';
+                                $orgLast = isset($event['organizer']['last_name']) ? $event['organizer']['last_name'] : '';
+                                $orgName = trim($orgFirst . ' ' . $orgLast);
                                 echo htmlspecialchars(empty($orgName) ? $event['organizer']['username'] : $orgName); 
                             ?>
                         </div>
                         <p><?php echo nl2br(htmlspecialchars($event['description'])); ?></p>
-                        
-                        <div class="actions">
-                            <?php if (isset($event['organizer']['id']) && $event['organizer']['id'] == $myUserId): ?>
-                                <a href="?action=edit&id=<?php echo $event['id']; ?>" class="btn">Edit</a>
-                                <a href="?action=delete&id=<?php echo $event['id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure? This cannot be undone.');">Delete</a>
-                            <?php endif; ?>
-                            <span class="share-link" onclick="copyToClipboard('<?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?>', this)">Share: <?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?></span>
-                        </div>
-                        <p><?php echo nl2br(htmlspecialchars($event['description'])); ?></p>
+<?php 
+                        /* <div class="actions"> */
+                        /*     <?php if (isset($event['organizer']['id']) && $event['organizer']['id'] == $myUserId): ?> */
+                        /*         <a href="?action=edit&id=<?php echo $event['id']; ?>" class="btn">Edit</a> */
+                        /*         <a href="?action=delete&id=<?php echo $event['id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure? This cannot be undone.');">Delete</a> */
+                        /*     <?php endif; ?> */
+                        /*     <span class="share-link" onclick="copyToClipboard('<?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?>', this)">Share: <?php echo DJANGO_BASE_URL . '/events/' . $event['slug']; ?></span> */
+                                /* </div> */
+ /*                       <p><?php echo nl2br(htmlspecialchars($event['description'])); ?></p>*/
+                        ?>
                         
                         <div class="actions">
                             <?php if (isset($event['organizer']['id']) && $event['organizer']['id'] == $myUserId): ?>
@@ -270,10 +275,10 @@ if (empty($myFullName)) {
                 <?php endif; ?>
 
                 <label>Title</label>
-                <input type="text" name="title" required value="<?php echo $editEvent['title'] ?? ''; ?>">
+                <input type="text" name="title" required value="<?php echo isset($editEvent['title']) ? $editEvent['title'] : ''; ?>">
 
                 <label>Description</label>
-                <textarea name="description" rows="4" required><?php echo $editEvent['description'] ?? ''; ?></textarea>
+                <textarea name="description" rows="4" required><?php echo isset($editEvent['description']) ? $editEvent['description'] : ''; ?></textarea>
 
                 <label>Start Time</label>
                 <input type="datetime-local" name="start_time" required value="<?php echo isset($editEvent['start_time']) ? date('Y-m-d\TH:i', strtotime($editEvent['start_time'])) : ''; ?>">
@@ -282,10 +287,10 @@ if (empty($myFullName)) {
                 <input type="datetime-local" name="end_time" required value="<?php echo isset($editEvent['end_time']) ? date('Y-m-d\TH:i', strtotime($editEvent['end_time'])) : ''; ?>">
 
                 <label>Location</label>
-                <input type="text" name="location" required value="<?php echo $editEvent['location'] ?? ''; ?>">
+                <input type="text" name="location" required value="<?php echo isset($editEvent['location']) ? $editEvent['location'] : ''; ?>">
 
                 <label>Capacity</label>
-                <input type="number" name="capacity" required value="<?php echo $editEvent['capacity'] ?? ''; ?>">
+                <input type="number" name="capacity" required value="<?php echo isset($editEvent['capacity']) ? $editEvent['capacity'] : ''; ?>">
 
                 <div style="margin-top: 20px;">
                     <button type="submit" class="btn">Save Event</button>
