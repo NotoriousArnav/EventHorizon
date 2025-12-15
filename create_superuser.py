@@ -6,11 +6,11 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "EventHorizon.settings")
 django.setup()
 
 User = get_user_model()
-username = "arnav"
-email = "arnav@example.com"
-password = "123123"
-first_name = "Arnav"
-last_name = "Developer"
+username = "admin"
+email = "admin@eventhorizon.local"
+password = "Ihapwics123$"
+first_name = "Administrator"
+last_name = "Staff"
 
 if not User.objects.filter(username=username).exists():
     print(f"Creating superuser {username}...")
@@ -21,6 +21,6 @@ if not User.objects.filter(username=username).exists():
         first_name=first_name,
         last_name=last_name,
     )
-    print("Superuser created.")
+    print(f"Superuser `{username}` with password `{password}` created.")
 else:
     print(f"Superuser {username} already exists.")

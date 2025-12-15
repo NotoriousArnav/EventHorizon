@@ -25,23 +25,32 @@
     cd EventHorizon
     ```
 
-2.  **Initialize Environment:**
+2.  **Install `uv` (Recommended):**
+    This project uses `uv` for lightning-fast dependency management.
     ```bash
-    uv sync
-    # OR
-    pip install -r requirements.txt
+    # macOS / Linux
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    # Windows
+    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+    # Alternative (via pip)
+    pip install uv
     ```
 
-3.  **Configure Credentials:**
-    Create a `.env` file:
-    ```env
-    DEBUG=True
-    SECRET_KEY=your-secret-key
+3.  **Initialize Systems:**
+    Run the interactive setup script to install dependencies, configure the environment (`.env`), and set up the database:
+    ```bash
+    python init_project.py
     ```
 
-4.  **Launch Systems:**
+4.  **Launch Sequence:**
+    Start the development server:
     ```bash
-    python manage.py migrate
+    # If using uv (Recommended)
+    uv run python manage.py runserver
+
+    # Standard Python (if manually installed)
     python manage.py runserver
     ```
 
