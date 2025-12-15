@@ -1,1 +1,4 @@
-layout: default
+theme: jekyll-theme-midnight
+title: Event Horizon
+description: "Deep Space Event Management System"
+show_downloads: true
