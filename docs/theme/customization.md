@@ -13,7 +13,7 @@ The project uses Django's template inheritance system.
 - `home.html`: The landing page.
 - `events/event_list.html`: The mission board.
 
-To customize a page, look for the `{% block content %}` tags in the respective template file.
+To customize a page, look for the template blocks labeled "content" in the respective file.
 
 ## Static Assets
 
