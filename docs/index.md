@@ -26,5 +26,9 @@ Welcome to the official documentation for **Event Horizon**, a next-generation e
 - [Design Philosophy](theme/design-philosophy.md)
 - [Customization](theme/customization.md)
 
+## 🧠 Internals
+
+- [Technical Quirks & Architecture](technical_quirks.md)
+
 ---
 *Built with Django 6.0 & Tailwind CSS*
