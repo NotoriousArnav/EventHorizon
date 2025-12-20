@@ -1,23 +1,24 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-    View,
-)
+import csv
+
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib import messages
-from django.urls import reverse_lazy, reverse
-from django.utils.text import slugify
-import csv
-from django.http import HttpResponse
-from .models import Event, Registration
-
-
+from django.core.mail import send_mail
 from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+    View,
+)
+
+from .models import Event, Registration
+from .utils import extract_registration_schema
 
 
 class EventListView(ListView):
@@ -116,47 +117,9 @@ class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         form.instance.organizer = self.request.user
 
-        # Process custom questions
-        schema = []
-        # We need to find how many we might have.
-        # A simple hacky way since we don't have a formal FormSet
-        # Iterate through POST keys to find questions
-
-        # First, filter keys that start with question_label_
-        import re
-
-        # Group by index
-        questions = {}
-
-        for key, value in self.request.POST.items():
-            if key.startswith("question_label_"):
-                index = key.split("_")[-1]  # Get the number at the end
-                if index not in questions:
-                    questions[index] = {}
-                questions[index]["label"] = value
-            elif key.startswith("question_type_"):
-                index = key.split("_")[-1]
-                if index not in questions:
-                    questions[index] = {}
-                questions[index]["type"] = value
-            elif key.startswith("question_id_"):
-                index = key.split("_")[-1]
-                if index not in questions:
-                    questions[index] = {}
-                questions[index]["id"] = value
-
-        # Construct schema list
-        for index, q_data in questions.items():
-            if "label" in q_data and q_data["label"].strip():  # Ensure label exists
-                schema.append(
-                    {
-                        "id": q_data.get("id", f"q_{index}"),  # Fallback ID
-                        "label": q_data["label"],
-                        "type": q_data.get("type", "text"),
-                    }
-                )
-
-        form.instance.registration_schema = schema
+        form.instance.registration_schema = extract_registration_schema(
+            self.request.POST
+        )
 
         return super().form_valid(form)
 
@@ -175,37 +138,9 @@ class EventUpdateView(
     def form_valid(self, form):
         form.instance.organizer = self.request.user
 
-        # Copy-paste logic from CreateView (should refactor into Mixin in production)
-        schema = []
-        questions = {}
-        for key, value in self.request.POST.items():
-            if key.startswith("question_label_"):
-                index = key.split("_")[-1]
-                if index not in questions:
-                    questions[index] = {}
-                questions[index]["label"] = value
-            elif key.startswith("question_type_"):
-                index = key.split("_")[-1]
-                if index not in questions:
-                    questions[index] = {}
-                questions[index]["type"] = value
-            elif key.startswith("question_id_"):
-                index = key.split("_")[-1]
-                if index not in questions:
-                    questions[index] = {}
-                questions[index]["id"] = value
-
-        for index, q_data in questions.items():
-            if "label" in q_data and q_data["label"].strip():
-                schema.append(
-                    {
-                        "id": q_data.get("id", f"q_{index}"),
-                        "label": q_data["label"],
-                        "type": q_data.get("type", "text"),
-                    }
-                )
-
-        form.instance.registration_schema = schema
+        form.instance.registration_schema = extract_registration_schema(
+            self.request.POST
+        )
 
         return super().form_valid(form)
 

@@ -85,7 +85,33 @@ def main():
     else:
         print_success(".env file already exists. Skipping.")
 
-    # 3. Database Migration
+    # 3. Node.js Dependencies & Tailwind CSS
+    print_step("Setting up frontend build system...")
+    if os.path.exists("package.json"):
+        print("package.json detected.")
+        install_npm = (
+            input("Install Node.js dependencies (npm install)? (Y/n): ").strip().lower()
+            != "n"
+        )
+        if install_npm:
+            if run_command("npm install", "Installing Node.js dependencies"):
+                # Build Tailwind CSS
+                build_css = (
+                    input("Build Tailwind CSS now? (Y/n): ").strip().lower() != "n"
+                )
+                if build_css:
+                    run_command("npm run build:css", "Building Tailwind CSS")
+                    print_success("Tailwind CSS compiled successfully.")
+                    print(
+                        "Tip: Run 'npm run watch:css' during development for auto-rebuild."
+                    )
+            else:
+                print_error("Failed to install Node.js dependencies.")
+                print_error("Make sure Node.js and npm are installed on your system.")
+    else:
+        print_success("No package.json found. Skipping Node.js setup.")
+
+    # 4. Database Migration
     print_step("Initializing database systems...")
     # Use the python executable from the current environment (which might be the venv uv just created)
     # If uv created a venv, it's usually in .venv. We should try to use that python if it exists and we aren't currently using it.
@@ -96,7 +122,7 @@ def main():
     # For simplicity in this script, we assume the user will activate the shell or the dependencies are installed where this script runs.
 
     if run_command(f"{python_cmd} manage.py migrate", "Applying database migrations"):
-        # 4. Superuser Creation
+        # 5. Superuser Creation
         print_step("User Access Control...")
         create_su = input("Create a superuser account now? (Y/n): ").strip().lower()
         if create_su != "n":

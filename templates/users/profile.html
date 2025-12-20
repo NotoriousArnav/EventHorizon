@@ -209,8 +209,8 @@
                             {% csrf_token %}
                             
                             <!-- Form Errors (only show if forms are bound and have errors) -->
-                            {% if u_form.is_bound or p_form.is_bound %}
-                                {% if u_form.errors or p_form.errors or s_formset.errors or s_formset.non_form_errors %}
+                            {% if request.method == 'POST' %}
+                                {% if u_form.errors or p_form.errors or s_formset.total_error_count > 0 %}
                                 <div class="bg-red-900/20 border border-red-500/30 rounded-xl p-4">
                                     <div class="flex items-start gap-3">
                                         <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -225,6 +225,11 @@
                                                 {% for field, errors in p_form.errors.items %}
                                                     {% for error in errors %}
                                                     <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                {% for form_errors in s_formset.errors %}
+                                                    {% for field, error in form_errors.items %}
+                                                        <li><strong>Social Link {{ forloop.parentloop.counter }} - {{ field|title }}:</strong> {{ error }}</li>
                                                     {% endfor %}
                                                 {% endfor %}
                                                 {% if s_formset.non_form_errors %}
@@ -306,11 +311,17 @@
 
                             <!-- Social Links Section -->
                             <div>
-                                <h4 class="text-xs font-bold text-purple-500 uppercase tracking-widest mb-6 border-b border-purple-500/20 pb-2 inline-block">Neural Network Links</h4>
+                                <div class="flex items-center justify-between mb-6">
+                                    <h4 class="text-xs font-bold text-purple-500 uppercase tracking-widest border-b border-purple-500/20 pb-2 inline-block">Neural Network Links</h4>
+                                    <button type="button" id="add-social-link" class="px-4 py-2 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                        Add Link
+                                    </button>
+                                </div>
                                 {{ s_formset.management_form }}
-                                <div class="space-y-4">
+                                <div id="social-links-container" class="space-y-4">
                                     {% for form in s_formset %}
-                                        <div class="flex flex-col sm:flex-row gap-4 p-4 rounded-lg border border-white/5 bg-white/5 hover:border-white/10 transition-colors">
+                                        <div class="social-link-form flex flex-col sm:flex-row gap-4 p-4 rounded-lg border border-white/5 bg-white/5 hover:border-white/10 transition-colors">
                                             <div class="w-full sm:w-1/3 space-y-1">
                                                 <label class="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Platform</label>
                                                 {{ form.platform }}
@@ -321,19 +332,19 @@
                                             </div>
                                             <div class="hidden">
                                                 {{ form.id }}
-                                                {{ form.DELETE }}
                                             </div>
-                                            {% if form.instance.pk %}
                                             <div class="flex items-end pb-1">
                                                 <div class="text-xs text-red-400 flex items-center gap-1">
                                                     <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="rounded border-gray-600 bg-black/50 text-red-500 focus:ring-red-500">
                                                     <label for="{{ form.DELETE.id_for_label }}">Delete</label>
                                                 </div>
                                             </div>
-                                            {% endif %}
                                         </div>
                                     {% endfor %}
                                 </div>
+                                {% if not s_formset %}
+                                <p class="text-sm text-gray-500 italic">No social links added yet. Click "Add Link" to add one.</p>
+                                {% endif %}
                             </div>
                             
                             <!-- Action Buttons -->
@@ -352,4 +363,81 @@
         </div>
     </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addButton = document.getElementById('add-social-link');
+    const container = document.getElementById('social-links-container');
+    const totalFormsInput = document.getElementById('id_social_links-TOTAL_FORMS');
+    
+    if (addButton && totalFormsInput) {
+        addButton.addEventListener('click', function() {
+            const formCount = parseInt(totalFormsInput.value);
+            
+            // Create new form HTML
+            const newForm = document.createElement('div');
+            newForm.className = 'social-link-form flex flex-col sm:flex-row gap-4 p-4 rounded-lg border border-white/5 bg-white/5 hover:border-white/10 transition-colors';
+            newForm.innerHTML = `
+                <div class="w-full sm:w-1/3 space-y-1">
+                    <label class="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Platform</label>
+                    <select name="social_links-${formCount}-platform" id="id_social_links-${formCount}-platform" class="appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300">
+                        <option value="github">GitHub</option>
+                        <option value="twitter">Twitter/X</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="website">Personal Website</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="w-full space-y-1">
+                    <label class="text-[10px] font-medium text-gray-500 uppercase tracking-wide">URL Endpoint</label>
+                    <input type="url" name="social_links-${formCount}-url" id="id_social_links-${formCount}-url" class="appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300">
+                </div>
+                <div class="hidden">
+                    <input type="hidden" name="social_links-${formCount}-id" id="id_social_links-${formCount}-id">
+                </div>
+                <div class="flex items-end pb-1">
+                    <button type="button" class="remove-social-link text-xs text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Remove
+                    </button>
+                </div>
+            `;
+            
+            // Add remove functionality to the new form
+            const removeBtn = newForm.querySelector('.remove-social-link');
+            removeBtn.addEventListener('click', function() {
+                newForm.remove();
+                updateFormCount();
+            });
+            
+            // Add new form to container
+            container.appendChild(newForm);
+            
+            // Update total forms count
+            totalFormsInput.value = formCount + 1;
+        });
+        
+        // Function to update form count after removal
+        function updateFormCount() {
+            const forms = container.querySelectorAll('.social-link-form');
+            totalFormsInput.value = forms.length;
+        }
+        
+        // Add remove functionality to existing dynamic forms (not saved ones)
+        container.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-social-link')) {
+                const form = e.target.closest('.social-link-form');
+                // Only allow removal if it doesn't have an ID (not saved yet)
+                const idInput = form.querySelector('input[name$="-id"]');
+                if (!idInput || !idInput.value) {
+                    form.remove();
+                    updateFormCount();
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

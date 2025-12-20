@@ -77,6 +77,7 @@ class ProfileUpdateForm(forms.ModelForm):
 
 class SocialLinkForm(forms.ModelForm):
     platform = forms.ChoiceField(
+        required=False,
         choices=SocialLink.PLATFORM_CHOICES,
         widget=forms.Select(
             attrs={
@@ -85,18 +86,65 @@ class SocialLinkForm(forms.ModelForm):
         ),
     )
     url = forms.URLField(
+        required=False,
         widget=forms.URLInput(
             attrs={
                 "class": "appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300"
             }
-        )
+        ),
     )
 
     class Meta:
         model = SocialLink
         fields = ["platform", "url"]
 
+    def clean(self):
+        """Ensure that if either field is filled, both must be filled."""
+        cleaned_data = super().clean()
+        platform = cleaned_data.get("platform")
+        url = cleaned_data.get("url")
+
+        # Skip validation for completely empty forms (no URL means it's empty)
+        if not url:
+            # Clear any errors and don't save this form
+            return cleaned_data
+
+        # If URL is provided, platform must be provided too
+        if url and not platform:
+            raise forms.ValidationError("Please select a platform for the entered URL.")
+
+        return cleaned_data
+
+
+class BaseSocialLinkFormSet(forms.BaseInlineFormSet):
+    """Custom formset that doesn't save empty forms."""
+
+    def save(self, commit=True):
+        """Override save to skip empty forms."""
+        instances = super().save(commit=False)
+
+        # Filter out instances without URLs (empty forms)
+        instances_to_save = [inst for inst in instances if inst.url]
+
+        if commit:
+            for instance in instances_to_save:
+                instance.save()
+
+        # Handle deletions
+        if hasattr(self, "deleted_objects"):
+            for obj in self.deleted_objects:  # type: ignore
+                obj.delete()
+
+        return instances_to_save
+
 
 SocialLinkFormSet = inlineformset_factory(
-    User, SocialLink, form=SocialLinkForm, extra=1, can_delete=True
+    User,
+    SocialLink,
+    form=SocialLinkForm,
+    formset=BaseSocialLinkFormSet,
+    extra=0,  # Don't show empty form by default
+    can_delete=True,
+    validate_min=False,
+    validate_max=False,
 )

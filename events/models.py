@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from django.db import IntegrityError
+from uuid import uuid4
 
 
 class Event(models.Model):
@@ -21,16 +23,16 @@ class Event(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            # Basic slugify
-            base_slug = slugify(self.title)
-            slug = base_slug
-            counter = 1
-            # Ensure uniqueness
-            while Event.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.slug = slug
-        super().save(*args, **kwargs)
+            base_slug = slugify(self.title) or uuid4().hex
+            self.slug = base_slug
+
+        for attempt in range(5):
+            try:
+                return super().save(*args, **kwargs)
+            except IntegrityError as exc:
+                if "slug" not in str(exc).lower() or attempt == 4:
+                    raise
+                self.slug = f"{self.slug}-{uuid4().hex[:4]}"
 
     def __str__(self):
         return str(self.title)

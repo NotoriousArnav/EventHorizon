@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import django
 from django.contrib.auth import get_user_model

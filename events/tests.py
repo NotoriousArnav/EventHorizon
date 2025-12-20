@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from .models import Event, Registration
+from .utils import extract_registration_schema
 
 User = get_user_model()
 
@@ -32,7 +33,9 @@ class EventTests(TestCase):
         response = self.client.post(reverse("event-create"), self.event_data)
         # Redirects to detail view on success
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(Event.objects.filter(title="Test Event").exists())
+        created_event = Event.objects.get(title="Test Event")
+        self.assertEqual(created_event.organizer, self.organizer)
+        self.assertTrue(created_event.slug)
 
     def test_list_events(self):
         Event.objects.create(organizer=self.organizer, **self.event_data)

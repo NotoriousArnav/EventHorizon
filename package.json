@@ -1,0 +1,32 @@
+{
+  "name": "eventhorizon",
+  "version": "1.0.0",
+  "description": "![Event Horizon Banner](https://img.shields.io/badge/Status-Operational-blue?style=for-the-badge) ![Django](https://img.shields.io/badge/Django-6.0-green?style=for-the-badge) ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-blueviolet?style=for-the-badge)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
+    "watch:css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NotoriousArnav/EventHorizon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NotoriousArnav/EventHorizon/issues"
+  },
+  "homepage": "https://github.com/NotoriousArnav/EventHorizon#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19"
+  }
+}
