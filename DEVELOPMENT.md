@@ -2,7 +2,26 @@
 
 ## Quick Start
 
-### Automated Setup (Recommended)
+### Option 1: Build Script (Fastest)
+
+For a completely automated setup:
+
+```bash
+# Install uv and all dependencies automatically
+./build.sh
+
+# Then configure your environment
+python init_project.py
+```
+
+The `build.sh` script will:
+- ✓ Install uv package manager (if not present)
+- ✓ Install Python dependencies
+- ✓ Install Node.js dependencies (if Node.js is available)
+- ✓ Build Tailwind CSS
+- ✓ Verify installation
+
+### Option 2: Interactive Setup (Recommended)
 
 Run the interactive initialization script to set up everything automatically:
 
@@ -21,7 +40,7 @@ This will guide you through:
 - ✓ Running database migrations
 - ✓ Creating superuser account
 
-### Manual Setup
+### Option 3: Manual Setup
 
 If you prefer manual setup:
 

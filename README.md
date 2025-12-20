@@ -21,42 +21,69 @@
 
 ## 🛠️ Installation
 
+### Quick Start (Automated)
+
 1.  **Clone the frequency:**
     ```bash
     git clone https://github.com/yourusername/EventHorizon.git
     cd EventHorizon
     ```
 
-2.  **Install `uv` (Recommended):**
-    This project uses `uv` for lightning-fast dependency management.
+2.  **Run build script:**
+    ```bash
+    ./build.sh
+    ```
+    This automatically installs `uv` and all dependencies.
+
+3.  **Initialize Systems:**
+    Run the interactive setup script to configure the environment:
+    ```bash
+    python init_project.py
+    ```
+
+4.  **Launch Sequence:**
+    ```bash
+    uv run python manage.py runserver
+    ```
+
+5.  **Access Terminal:**
+    Open `http://127.0.0.1:8000` in your browser.
+
+### Manual Installation
+
+1.  **Clone the frequency:**
+    ```bash
+    git clone https://github.com/yourusername/EventHorizon.git
+    cd EventHorizon
+    ```
+
+2.  **Install `uv`:**
     ```bash
     # macOS / Linux
     curl -LsSf https://astral.sh/uv/install.sh | sh
 
     # Windows
     powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-    # Alternative (via pip)
-    pip install uv
     ```
 
-3.  **Initialize Systems:**
-    Run the interactive setup script to install dependencies, configure the environment (`.env`), and set up the database:
+3.  **Install Dependencies:**
+    ```bash
+    uv sync
+    npm install  # For Tailwind CSS
+    npm run build:css
+    ```
+
+4.  **Initialize Systems:**
     ```bash
     python init_project.py
     ```
 
-4.  **Launch Sequence:**
-    Start the development server:
+5.  **Launch Sequence:**
     ```bash
-    # If using uv (Recommended)
     uv run python manage.py runserver
-
-    # Standard Python (if manually installed)
-    python manage.py runserver
     ```
 
-5.  **Access Terminal:**
+6.  **Access Terminal:**
     Open `http://127.0.0.1:8000` in your browser.
 
 ## ⚙️ Configuration
