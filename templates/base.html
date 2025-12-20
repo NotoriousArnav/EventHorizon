@@ -4,7 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Event Horizon{% endblock %}</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>{% block title %}Event Horizon - Ultimate Event Management Platform{% endblock %}</title>
+    <meta name="title" content="{% block meta_title %}Event Horizon - Ultimate Event Management Platform{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Event Horizon is a powerful event management platform with user profiles, OAuth integration, and seamless event registration. Organize, explore, and transcend via the ultimate event platform.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}event management, event registration, event platform, oauth, user profiles, event organization, event discovery{% endblock %}">
+    <meta name="author" content="Event Horizon">
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Event Horizon - Ultimate Event Management Platform{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Event Horizon is a powerful event management platform with user profiles, OAuth integration, and seamless event registration.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'images/og-default.jpg' %}{% endblock %}">
+    <meta property="og:site_name" content="Event Horizon">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+    <meta name="twitter:url" content="{% block twitter_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}Event Horizon - Ultimate Event Management Platform{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Event Horizon is a powerful event management platform with user profiles, OAuth integration, and seamless event registration.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% static 'images/twitter-card.jpg' %}{% endblock %}">
+    
+    <!-- Structured Data (JSON-LD) - Can be overridden in child templates -->
+    {% block structured_data %}{% endblock %}
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

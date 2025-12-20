@@ -1,5 +1,36 @@
 {% extends "base.html" %}
 
+{% block title %}Event Horizon - Organize, Explore, and Transcend Your Events{% endblock %}
+{% block meta_title %}Event Horizon - Ultimate Event Management & Registration Platform{% endblock %}
+{% block meta_description %}Discover and manage events seamlessly with Event Horizon. The ultimate event management platform featuring OAuth integration, user profiles, dynamic registration, and real-time event discovery.{% endblock %}
+{% block meta_keywords %}event management platform, event registration system, oauth event platform, event discovery, event organization, user event profiles, event registration{% endblock %}
+
+{% block og_title %}Event Horizon - The Point of No Return for Your Social Calendar{% endblock %}
+{% block og_description %}Organize, explore, and transcend via the ultimate event platform. Discover upcoming events, manage registrations, and connect with your community.{% endblock %}
+
+{% block twitter_title %}Event Horizon - Ultimate Event Management Platform{% endblock %}
+{% block twitter_description %}The point of no return for your social calendar. Organize, explore, and transcend via the ultimate event platform.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Event Horizon",
+  "description": "The ultimate event management platform with OAuth integration and user profiles",
+  "url": "{{ request.build_absolute_uri }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "{{ request.scheme }}://{{ request.get_host }}/events/?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-black font-sans selection:bg-orange-500 selection:text-white">
   
@@ -132,7 +163,7 @@
   </style>
 
   <!-- The Beast -->
-  <div class="gargantua-container">
+  <div class="gargantua-container" role="presentation" aria-hidden="true">
     <div class="lensing-ring"></div>
     <div class="lensing-ring-bottom"></div>
     <div class="disk"></div>
@@ -172,7 +203,7 @@
     <!-- Live Event Feed (Holographic Style) -->
     <div class="mt-24 w-full max-w-6xl opacity-0 animate-fade-in-up" style="animation-delay: 1s; animation-fill-mode: forwards;">
       <div class="flex items-center justify-between mb-4 px-2">
-         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">Incoming Transmissions</h3>
+         <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">Incoming Transmissions</h2>
          <div class="h-px bg-gray-800 flex-grow ml-4"></div>
       </div>
       

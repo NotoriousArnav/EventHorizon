@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}Initialize Mission | Event Horizon{% endblock %}
+{% block title %}{% if object %}Edit Event{% else %}Create Event{% endif %} | Event Horizon{% endblock %}
+{% block meta_title %}{% if object %}Edit {{ object.title }}{% else %}Create New Event{% endif %} | Event Horizon{% endblock %}
+{% block meta_description %}{% if object %}Update your event details and settings for {{ object.title }}.{% else %}Create a new event on Event Horizon. Set up registration, manage capacity, and invite participants.{% endif %}{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
 
 {% block content %}
 <div class="min-h-screen relative overflow-x-hidden font-sans">

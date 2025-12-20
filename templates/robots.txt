@@ -1,0 +1,19 @@
+# Robots.txt for Event Horizon
+# This file tells search engines which pages they can and cannot access
+
+User-agent: *
+Disallow: /admin/
+Disallow: /accounts/login/
+Disallow: /accounts/signup/
+Disallow: /accounts/password/
+Disallow: /api-auth/
+Disallow: /o/
+Disallow: /media/avatars/
+
+# Allow everything else
+Allow: /
+Allow: /events/
+Allow: /static/
+
+# Sitemap location
+Sitemap: {{ sitemap_url }}

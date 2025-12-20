@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -28,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG := os.getenv("DEBUG", "False").lower() in {"true", "1", "yes"}:
-        SECRET_KEY = "django-insecure-dev-key-change-in-production"
+        SECRET_KEY = "N_xsGTkMKK9BYha6hGCYJgoIIMP0WRMZT5IGHN8oESql1L1yqNLdX8GxEmT9god1ops"
     else:
         raise ImproperlyConfigured(
             "SECRET_KEY environment variable must be set in production"
@@ -46,6 +47,46 @@ else:
         raise ImproperlyConfigured("ALLOWED_HOSTS must be set when DEBUG is False")
 
 
+# Security Settings
+# https://docs.djangoproject.com/en/6.0/topics/security/
+
+# HTTPS/SSL Settings (enabled in production when DEBUG=False)
+if not DEBUG:
+    # Redirect all HTTP requests to HTTPS
+    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "True").lower() in {
+        "true",
+        "1",
+        "yes",
+    }
+
+    # HSTS (HTTP Strict Transport Security)
+    # Forces browsers to use HTTPS for this site for the specified duration
+    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv(
+        "SECURE_HSTS_INCLUDE_SUBDOMAINS", "True"
+    ).lower() in {"true", "1", "yes"}
+    SECURE_HSTS_PRELOAD = os.getenv("SECURE_HSTS_PRELOAD", "True").lower() in {
+        "true",
+        "1",
+        "yes",
+    }
+
+    # Cookie Security
+    SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+    CSRF_COOKIE_SECURE = True  # Only send CSRF cookie over HTTPS
+
+    # Additional Security Headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = "DENY"
+else:
+    # Development mode - disable SSL requirements
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -55,6 +96,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django.contrib.sitemaps",
     # Plugins
     "oauth2_provider",
     "allauth",
@@ -131,6 +173,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.request",
+                "EventHorizon.context_processors.seo_context",
             ],
         },
     },
@@ -142,12 +185,27 @@ WSGI_APPLICATION = "EventHorizon.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Use DATABASE_URL environment variable if provided, otherwise fall back to SQLite
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    # Parse the DATABASE_URL connection string
+    # Supports: postgresql://, mysql://, sqlite:///
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,  # Connection pooling for better performance
+            conn_health_checks=True,  # Enable connection health checks
+        )
     }
-}
+else:
+    # Default to SQLite for local development
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -224,7 +282,9 @@ else:
     DEFAULT_FROM_EMAIL = "noreply@eventhorizon.local"
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-ACCOUNT_EMAIL_REQUIRED = True
+# Django Allauth Configuration
+# Email is required for registration
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 LOGIN_REDIRECT_URL = "profile"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 

@@ -16,6 +16,8 @@
     *   **Command Logs:** Manage events you are hosting.
     *   **Mission Assignments:** Track status of events you are attending.
 *   **Search & Navigation:** Filter missions by sector (location) or codename (title).
+*   **Flexible Database Support:** SQLite (default), PostgreSQL, MySQL via `DATABASE_URL` environment variable.
+*   **S3-Compatible Storage:** Support for AWS S3, MinIO, DigitalOcean Spaces, and Cloudflare R2.
 
 ## 🛠️ Installation
 
@@ -56,6 +58,30 @@
 
 5.  **Access Terminal:**
     Open `http://127.0.0.1:8000` in your browser.
+
+## ⚙️ Configuration
+
+Event Horizon is configured via environment variables in `.env`:
+
+**Database:** Use `DATABASE_URL` to connect to PostgreSQL or MySQL:
+```env
+# PostgreSQL
+DATABASE_URL=postgresql://user:password@localhost:5432/eventhorizon
+
+# MySQL
+DATABASE_URL=mysql://user:password@localhost:3306/eventhorizon
+```
+Defaults to SQLite if not set. See [Database Configuration](docs/setup/configuration.md#database-configuration) for details.
+
+**Storage:** Configure S3-compatible storage for media files:
+```env
+STORAGE_BACKEND=s3  # or 'minio', 'local'
+AWS_ACCESS_KEY_ID=your-key
+AWS_SECRET_ACCESS_KEY=your-secret
+AWS_STORAGE_BUCKET_NAME=your-bucket
+```
+
+For complete configuration options, see [Configuration Guide](docs/setup/configuration.md).
 
 ## 🤝 Contributing
 

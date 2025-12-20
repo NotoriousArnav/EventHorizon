@@ -2,7 +2,55 @@
 {% load i18n %}
 {% load event_extras %}
 
-{% block title %}{{ event.title }} | Mission Profile{% endblock %}
+{% block title %}{{ event.title }} | Event Details{% endblock %}
+{% block meta_title %}{{ event.title }} - {{ event.location }} | Event Horizon{% endblock %}
+{% block meta_description %}{{ event.description|truncatewords:30|striptags }} Join us on {{ event.start_time|date:"F j, Y" }} at {{ event.location }}. Registration capacity: {{ event.capacity }}.{% endblock %}
+{% block meta_keywords %}{{ event.title }}, event registration, {{ event.location }}, events, event horizon{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ event.title }} - {{ event.location }}{% endblock %}
+{% block og_description %}{{ event.description|truncatewords:30|striptags }} Join us on {{ event.start_time|date:"F j, Y" }}.{% endblock %}
+
+{% block twitter_card %}summary{% endblock %}
+{% block twitter_title %}{{ event.title }}{% endblock %}
+{% block twitter_description %}{{ event.description|truncatewords:20|striptags }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "{{ event.title|escapejs }}",
+  "description": "{{ event.description|striptags|escapejs }}",
+  "startDate": "{{ event.start_time|date:'c' }}",
+  "endDate": "{{ event.end_time|date:'c' }}",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "location": {
+    "@type": "Place",
+    "name": "{{ event.location|escapejs }}",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "{{ event.location|escapejs }}"
+    }
+  },
+  "organizer": {
+    "@type": "Person",
+    "name": "{{ event.organizer.username|escapejs }}",
+    "email": "{{ event.organizer.email|escapejs }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "availability": "{% if event.registrations.count >= event.capacity %}https://schema.org/SoldOut{% else %}https://schema.org/InStock{% endif %}",
+    "price": "0",
+    "priceCurrency": "USD",
+    "validFrom": "{{ event.created_at|date:'c' }}"
+  },
+  "maximumAttendeeCapacity": {{ event.capacity }},
+  "remainingAttendeeCapacity": {{ event.capacity|add:"-"|add:event.registrations.count }}
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="min-h-screen relative overflow-x-hidden font-sans">
@@ -114,12 +162,12 @@
                                 {% for reg in registrations %}
                                 <tr class="hover:bg-white/5 transition-colors">
                                     <td class="px-4 py-3">
-                                        <div class="flex items-center gap-3">
+                                         <div class="flex items-center gap-3">
                                             <div class="w-8 h-8 rounded-full bg-gray-800 overflow-hidden">
                                                 {% if reg.participant.profile.avatar %}
-                                                <img src="{{ reg.participant.profile.avatar.url }}" class="w-full h-full object-cover">
+                                                <img src="{{ reg.participant.profile.avatar.url }}" alt="{{ reg.participant.username }} avatar" class="w-full h-full object-cover">
                                                 {% else %}
-                                                <div class="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
+                                                <div class="w-full h-full flex items-center justify-center text-gray-500 text-xs" aria-label="No avatar">?</div>
                                                 {% endif %}
                                             </div>
                                             <span class="text-gray-200">{{ reg.participant.username }}</span>
@@ -194,12 +242,12 @@
                 <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5 p-6">
                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Mission Commander</h3>
                     <div class="flex items-center gap-4">
-                        <div class="relative w-12 h-12 rounded-full overflow-hidden border border-white/10 bg-black">
+                         <div class="relative w-12 h-12 rounded-full overflow-hidden border border-white/10 bg-black">
                             {% if event.organizer.profile.avatar %}
-                                <img src="{{ event.organizer.profile.avatar.url }}" alt="" class="w-full h-full object-cover">
+                                <img src="{{ event.organizer.profile.avatar.url }}" alt="{{ event.organizer.username }} profile avatar" class="w-full h-full object-cover">
                             {% else %}
                                 <div class="w-full h-full flex items-center justify-center bg-gray-800 text-gray-500">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Default user avatar"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 </div>
                             {% endif %}
                         </div>

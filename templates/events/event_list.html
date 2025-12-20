@@ -1,7 +1,28 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}Events | Event Horizon{% endblock %}
+{% block title %}Discover Events | Event Horizon{% endblock %}
+{% block meta_title %}Browse All Events - Find Your Next Event | Event Horizon{% endblock %}
+{% block meta_description %}Explore a curated list of upcoming events on Event Horizon. Search by location, filter by interests, and register for events in your area. Discover community gatherings, workshops, conferences, and more.{% endblock %}
+{% block meta_keywords %}browse events, upcoming events, event discovery, event search, find events, event registration, community events{% endblock %}
+
+{% block og_title %}Discover Upcoming Events | Event Horizon{% endblock %}
+{% block og_description %}Browse and register for upcoming events in your area. Find workshops, conferences, meetups, and community gatherings.{% endblock %}
+
+{% block twitter_title %}Discover Events on Event Horizon{% endblock %}
+{% block twitter_description %}Explore upcoming events and register instantly. Your next adventure awaits.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Event Listings",
+  "description": "Browse all available events on Event Horizon",
+  "url": "{{ request.build_absolute_uri }}"
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="min-h-screen relative overflow-x-hidden font-sans">
@@ -155,12 +176,12 @@
                         </div>
                         
                         <div class="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
-                            <div class="flex items-center">
+                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-6 w-6 rounded-full bg-gray-700 overflow-hidden border border-gray-600">
                                     {% if event.organizer.profile.avatar %}
-                                    <img class="h-6 w-6 object-cover" src="{{ event.organizer.profile.avatar.url }}" alt="">
+                                    <img class="h-6 w-6 object-cover" src="{{ event.organizer.profile.avatar.url }}" alt="{{ event.organizer.username }} avatar">
                                     {% else %}
-                                    <svg class="h-full w-full text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                    <svg class="h-full w-full text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-label="Default organizer avatar"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                     {% endif %}
                                 </div>
                                 <span class="ml-2 text-xs font-medium text-gray-400 group-hover:text-gray-300">

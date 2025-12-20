@@ -17,15 +17,23 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.sitemaps.views import sitemap
+from django.views.generic import TemplateView
 from oauth2_provider import urls as oauth2_urls
 import os
 from django.conf import settings
 from django.conf.urls.static import static
+from events.sitemaps import StaticViewSitemap, EventSitemap
 
 admin.site.site_header = os.getenv("DJANGO_SITE_HEADER", "Event Horizon")
 admin.site.site_title = os.getenv("DJANGO_SITE_TITLE", "Event Horizon")
 admin.site.index_title = os.getenv("DJANGO_INDEX_TITLE", "Event Horizon")
 
+# Sitemap configuration
+sitemaps = {
+    "static": StaticViewSitemap,
+    "events": EventSitemap,
+}
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,6 +41,17 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("accounts/", include("users.urls")),
     path("api-auth/", include("rest_framework.urls")),
+    # SEO: Sitemap and Robots.txt
+    path(
+        "sitemap.xml",
+        sitemap,
+        {"sitemaps": sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
+    path(
+        "robots.txt",
+        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+    ),
     path("", include("events.urls")),
     path("", include("home.urls")),
 ]
