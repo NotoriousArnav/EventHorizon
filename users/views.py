@@ -23,6 +23,9 @@ def profile(request):
             s_formset.save()
             messages.success(request, _("Your profile has been updated!"))
             return redirect("profile")
+        else:
+            # Show error message if validation fails
+            messages.error(request, _("Please correct the errors below."))
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)

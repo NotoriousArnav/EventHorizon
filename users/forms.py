@@ -64,7 +64,8 @@ class ProfileUpdateForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(
             attrs={
-                "class": "appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300"
+                "class": "block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-700 file:cursor-pointer cursor-pointer",
+                "accept": "image/*",
             }
         ),
     )
