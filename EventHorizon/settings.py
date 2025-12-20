@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,14 +25,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "django-insecure-w5$ii$3x*_ue!q!b%*_uw&65b!ugt!%gj3&r03+&@#tv*xi7)w"
-)
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG := os.getenv("DEBUG", "False").lower() in {"true", "1", "yes"}:
+        SECRET_KEY = "django-insecure-dev-key-change-in-production"
+    else:
+        raise ImproperlyConfigured(
+            "SECRET_KEY environment variable must be set in production"
+        )
+else:
+    DEBUG = os.getenv("DEBUG", "False").lower() in {"true", "1", "yes"}
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.getenv("DEBUG") == "True" else False
-
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()
+]
+if DEBUG:
+    ALLOWED_HOSTS = ALLOWED_HOSTS or ["127.0.0.1", "localhost", "0.0.0.0"]
+else:
+    if not ALLOWED_HOSTS:
+        raise ImproperlyConfigured("ALLOWED_HOSTS must be set when DEBUG is False")
 
 
 # Application definition
@@ -79,10 +91,25 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+# CORS configuration - Open by default to support third-party OAuth clients
+# EventHorizon is designed as a platform for community developers to build against
+# APIs are protected by OAuth2/Token auth, so CORS can be permissive
+# For production lockdown, set CORS_ALLOW_ALL_ORIGINS=false and specify CORS_ALLOWED_ORIGINS
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS", "True").lower() in {
+    "true",
+    "1",
+    "yes",
+}
+
+if not CORS_ALLOW_ALL_ORIGINS:
+    CORS_ALLOWED_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
+    if not CORS_ALLOWED_ORIGINS:
+        # Fallback for local development if explicitly disabled
+        CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 ROOT_URLCONF = "EventHorizon.urls"
 
@@ -160,8 +187,39 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-if os.getenv("EMAIL2CONSOLE", "True") == "True":
+# Email Configuration
+if os.getenv("EMAIL_BACKEND") == "smtp":
+    # Production SMTP configuration
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+    EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+    EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() in {"true", "1", "yes"}
+    EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() in {"true", "1", "yes"}
+    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+    SERVER_EMAIL = os.getenv("SERVER_EMAIL", EMAIL_HOST_USER)
+elif os.getenv("EMAIL_BACKEND") == "sendgrid":
+    # SendGrid API configuration
+    EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+    SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
+    SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@eventhorizon.local")
+    SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
+elif os.getenv("EMAIL_BACKEND") == "mailgun":
+    # Mailgun configuration
+    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+    ANYMAIL = {
+        "MAILGUN_API_KEY": os.getenv("MAILGUN_API_KEY", ""),
+        "MAILGUN_SENDER_DOMAIN": os.getenv("MAILGUN_SENDER_DOMAIN", ""),
+    }
+    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@eventhorizon.local")
+    SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
+else:
+    # Development: Console backend (prints emails to terminal)
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    DEFAULT_FROM_EMAIL = "noreply@eventhorizon.local"
+    SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 ACCOUNT_EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = "profile"
@@ -181,5 +239,59 @@ OAUTH2_PROVIDER = {
 }
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
+# Storage Configuration
+# Choose storage backend: local (default), s3, minio
+STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local").lower()
+
+if STORAGE_BACKEND in ["s3", "minio"]:
+    # S3-Compatible Storage (AWS S3, MinIO, DigitalOcean Spaces, Cloudflare R2)
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
+
+    # For MinIO or other S3-compatible services, set a custom endpoint
+    AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL")
+
+    # SSL Configuration (use False for local MinIO without SSL)
+    AWS_S3_USE_SSL = os.getenv("AWS_S3_USE_SSL", "True").lower() in {"true", "1", "yes"}
+
+    # Custom domain for CDN (optional)
+    AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN")
+
+    # Signature version (use 's3v4' for newer AWS regions)
+    AWS_S3_SIGNATURE_VERSION = os.getenv("AWS_S3_SIGNATURE_VERSION", "s3v4")
+
+    # File handling
+    AWS_S3_FILE_OVERWRITE = False  # Don't overwrite files with same name
+    AWS_DEFAULT_ACL = "public-read"  # Make uploaded files publicly accessible
+    AWS_QUERYSTRING_AUTH = False  # Don't add auth query params to public URLs
+
+    # Django 4.2+ Storage configuration
+    STORAGES = {
+        "default": {
+            "BACKEND": "storage.s3.S3MediaStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
+    # Optionally use S3 for static files (usually not needed in development)
+    if os.getenv("USE_S3_FOR_STATIC", "False").lower() in {"true", "1", "yes"}:
+        STORAGES["staticfiles"]["BACKEND"] = "storage.s3.S3StaticStorage"
+
+    # Construct media URL
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+    elif AWS_S3_ENDPOINT_URL:
+        # For MinIO or custom endpoints
+        endpoint = AWS_S3_ENDPOINT_URL.rstrip("/")
+        MEDIA_URL = f"{endpoint}/{AWS_STORAGE_BUCKET_NAME}/media/"
+    else:
+        # Standard AWS S3 URL
+        MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/media/"
+else:
+    # Local filesystem storage (default for development)
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIA_URL = "/media/"
