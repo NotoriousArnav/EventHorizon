@@ -58,6 +58,16 @@ else:
 ALLOWED_HOSTS = [
     host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()
 ]
+
+# Auto-detect Vercel deployment
+if os.getenv("VERCEL"):
+    vercel_url = os.getenv("VERCEL_URL")
+    if vercel_url and vercel_url not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(vercel_url)
+    # Allow all Vercel preview/production deployments
+    if ".vercel.app" not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(".vercel.app")
+
 if DEBUG:
     ALLOWED_HOSTS = ALLOWED_HOSTS or ["127.0.0.1", "localhost", "0.0.0.0"]
 else:
