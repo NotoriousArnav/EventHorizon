@@ -12,6 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    - name: Build Tailwind CSS
+      run: |
+        npm ci
+        npm run build:css
     - name: Install uv
       uses: astral-sh/setup-uv@v4
       with:
@@ -28,10 +37,7 @@ jobs:
         SECRET_KEY: 'test-secret-key-for-ci-only-not-for-production'
         DATABASE_URL: 'sqlite:///db.sqlite3'
       run: |
-        # Create placeholder social media images for tests (if not in repo)
-        mkdir -p static/images
-        touch static/images/og-default.jpg
-        touch static/images/twitter-card.jpg
+        # Collect all static files (CSS is already built by Tailwind)
         uv run manage.py collectstatic --noinput
     - name: Run Tests
       env:
