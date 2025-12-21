@@ -1,4 +1,22 @@
 <?php
+/*
+ * Event Horizon - Futuristic Event Management Platform
+ * Copyright (C) 2025-2026 Arnav Ghosh
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // Configuration for the Barebones PHP Client
 
 // 1. Configuration from your Django Admin Panel (Django OAuth Toolkit)
@@ -6,12 +24,16 @@
 // Client Type: Confidential
 // Authorization Grant Type: Authorization code
 // Redirect URIs: http://localhost:8080/dashboard.php
-define('CLIENT_ID', 'C3xHvWKvXPOc8P9HGwrwdC5CpLpbVv8TDp1FWg5g');
-define('CLIENT_SECRET', 'rvbSZrCImRqoZXIGvBC11lD1vkZWtYEai97RKcpizbwB5pbDgVRUdGAFSiePsrkNgOiZLckO4TxqfD9WeLJC3hL9kjKMesuLtzTqR7Fyh0kualGEVp9iKOgKfo9mHzFL');
+/*
+ * QvW6nBzZEzRMNs9Gc1kBWovw5BBzJqDjF2mwkTVL
+ *  pbkdf2_sha256$1200000$QGu12X4X93RYzYn3BIrE5G$8M01CXqf4IdLzL+Gj17hh8+8REVhGvCD4qgcf5z0WqY=
+* */
+define('CLIENT_ID', 'QvW6nBzZEzRMNs9Gc1kBWovw5BBzJqDjF2mwkTVL');
+define('CLIENT_SECRET', 'pbkdf2_sha256$1200000$QGu12X4X93RYzYn3BIrE5G$8M01CXqf4IdLzL+Gj17hh8+8REVhGvCD4qgcf5z0WqY=');
 
 // 2. URLs
 define('DJANGO_BASE_URL', 'http://127.0.0.1:8000'); // Address of your running Django server
-define('REDIRECT_URI', 'http://localhost:8080/dashboard.php'); // Address of this PHP script
+define('REDIRECT_URI', 'http://localhost:8080/'); // Address of this PHP script
 
 // 3. Endpoints (Standard OAuth2)
 define('AUTHORIZE_URL', DJANGO_BASE_URL . '/o/authorize/');

@@ -1,3 +1,21 @@
+/*
+ * Event Horizon - Futuristic Event Management Platform
+ * Copyright (C) 2025-2026 Arnav Ghosh
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,5 +38,114 @@
   
   .input-field {
     @apply appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300;
+  }
+  
+  /* Markdown Styling for #event-description */
+  #event-description {
+    @apply text-gray-300 leading-relaxed;
+  }
+  
+  #event-description h1,
+  #event-description h2,
+  #event-description h3,
+  #event-description h4,
+  #event-description h5,
+  #event-description h6 {
+    @apply font-display font-bold text-white uppercase tracking-wider mt-6 mb-4;
+  }
+  
+  #event-description h1 {
+    @apply text-4xl border-b-2 border-orange-500/30 pb-3;
+  }
+  
+  #event-description h2 {
+    @apply text-3xl border-b border-orange-500/20 pb-3;
+  }
+  
+  #event-description h3 {
+    @apply text-2xl text-orange-400;
+  }
+  
+  #event-description h4 {
+    @apply text-xl text-orange-300;
+  }
+  
+  #event-description p {
+    @apply mb-4;
+  }
+  
+  #event-description a {
+    @apply text-blue-400 underline hover:text-blue-300 transition-colors;
+  }
+  
+  #event-description strong {
+    @apply text-white font-semibold;
+  }
+  
+  #event-description em {
+    @apply italic text-gray-300;
+  }
+  
+  #event-description ul,
+  #event-description ol {
+    @apply my-4 pl-6 space-y-2;
+  }
+  
+  #event-description ul {
+    @apply list-none;
+  }
+  
+  #event-description ul li {
+    @apply relative pl-4;
+  }
+  
+  #event-description ul li::before {
+    content: "▸";
+    @apply absolute left-0 text-orange-500 font-bold;
+  }
+  
+  #event-description ol {
+    @apply list-decimal;
+  }
+  
+  #event-description code {
+    @apply bg-black/50 border border-orange-500/20 rounded px-1.5 py-0.5 text-yellow-300 text-sm font-mono;
+  }
+  
+  #event-description pre {
+    @apply bg-black/70 border border-orange-500/20 rounded-lg p-4 overflow-x-auto my-6;
+  }
+  
+  #event-description pre code {
+    @apply bg-transparent border-0 p-0 text-gray-300;
+  }
+  
+  #event-description blockquote {
+    @apply border-l-4 border-orange-500 pl-4 my-6 text-gray-400 italic bg-orange-500/5 py-4;
+  }
+  
+  #event-description table {
+    @apply w-full border-collapse my-6;
+  }
+  
+  #event-description th,
+  #event-description td {
+    @apply border border-white/10 px-4 py-3 text-left;
+  }
+  
+  #event-description th {
+    @apply bg-orange-500/10 text-orange-400 font-semibold uppercase text-sm tracking-wider;
+  }
+  
+  #event-description tr:hover {
+    @apply bg-white/5;
+  }
+  
+  #event-description hr {
+    @apply border-0 border-t-2 border-orange-500/20 my-8;
+  }
+  
+  #event-description img {
+    @apply max-w-full h-auto rounded-lg border border-white/10 my-6;
   }
 }
