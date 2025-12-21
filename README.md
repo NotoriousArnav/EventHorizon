@@ -6,7 +6,6 @@
 
 ## 🚀 Features
 
-*   **Immersive UI:** Glassmorphism, deep space backgrounds, and terminal-style typography using Tailwind CSS.
 *   **Mission Control:** Organizers can create events with custom registration protocols (custom questions).
 *   **Crew Management:**
     *   Dynamic waitlisting system.
@@ -38,7 +37,7 @@
 3.  **Initialize Systems:**
     Run the interactive setup script to configure the environment:
     ```bash
-    python init_project.py
+    uv run init_project.py
     ```
 
 4.  **Launch Sequence:**

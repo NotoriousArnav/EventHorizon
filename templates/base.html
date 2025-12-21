@@ -52,6 +52,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
     <!-- Structured Data (JSON-LD) - Can be overridden in child templates -->
     {% block structured_data %}{% endblock %}
     
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'images/favicon/site.webmanifest' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon/favicon.ico' %}">
+    <meta name="theme-color" content="#7c3aed">
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
