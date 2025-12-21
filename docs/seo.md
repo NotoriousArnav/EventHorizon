@@ -19,11 +19,13 @@ All pages now include:
 
 The base template (`base.html`) provides default meta tags that can be overridden in child templates:
 
+{% raw %}
 ```django
 {% block title %}Page Title{% endblock %}
 {% block meta_description %}Page description{% endblock %}
 {% block og_title %}Social media title{% endblock %}
 ```
+{% endraw %}
 
 ### 2. Structured Data (JSON-LD)
 
@@ -112,6 +114,7 @@ urlpatterns = [
 
 1. **Extend the base template** and override SEO blocks:
 
+{% raw %}
 ```django
 {% extends "base.html" %}
 
@@ -132,6 +135,7 @@ urlpatterns = [
 </script>
 {% endblock %}
 ```
+{% endraw %}
 
 2. **Ensure images have alt text**:
 

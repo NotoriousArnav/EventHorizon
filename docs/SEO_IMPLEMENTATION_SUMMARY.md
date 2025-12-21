@@ -61,6 +61,7 @@ A comprehensive SEO audit was performed on the Event Horizon Django application,
 - All page templates
 
 **Changes:**
+{% raw %}
 ```django
 <!-- Primary Meta Tags -->
 <title>{% block title %}...{% endblock %}</title>
@@ -78,6 +79,7 @@ A comprehensive SEO audit was performed on the Event Horizon Django application,
 <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
 <meta name="twitter:title" content="{% block twitter_title %}...{% endblock %}">
 ```
+{% endraw %}
 
 **Impact:** 
 - 100% improvement in social media sharing previews
@@ -213,9 +215,11 @@ Sitemap: https://yourdomain.com/sitemap.xml
 ### 7. Canonical URL Implementation
 
 **Added to base.html:**
+{% raw %}
 ```html
 <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
 ```
+{% endraw %}
 
 **Impact:**
 - Prevents duplicate content issues
