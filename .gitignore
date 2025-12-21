@@ -15,4 +15,4 @@ staticfiles/
 *.mo
 php-client/config.php
 node_modules/
-static/css/output.css
+# Static files - output.css now tracked for Vercel deployment
