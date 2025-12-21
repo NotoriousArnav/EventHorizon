@@ -22,12 +22,12 @@ fi
 
 # Install Python dependencies
 echo "Installing Python dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
+uv pip install --upgrade pip
+uv pip install -r requirements.txt
 
 # Collect static files
 echo "Collecting static files..."
-python manage.py collectstatic --noinput --clear
+uv run python manage.py collectstatic --noinput --clear
 
 echo "==================================="
 echo "Build completed successfully!"
