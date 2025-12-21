@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
+# Event Horizon - Futuristic Event Management Platform
+# Copyright (C) 2025-2026 Arnav Ghosh
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 ################################################################################
 # Event Horizon - Build Script
 # Installs uv package manager and project dependencies
@@ -107,11 +123,11 @@ install_dependencies() {
     
     if [ -f "uv.lock" ]; then
         print_step "uv.lock found, syncing dependencies..."
-        uv sync
     else
         print_step "No uv.lock found, installing from pyproject.toml..."
-        uv sync
     fi
+
+    uv sync
     
     print_success "Python dependencies installed"
 }

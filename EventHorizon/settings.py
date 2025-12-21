@@ -1,3 +1,19 @@
+# Event Horizon - Futuristic Event Management Platform
+# Copyright (C) 2025-2026 Arnav Ghosh
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 """
 Django settings for EventHorizon project.
 
@@ -29,7 +45,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG := os.getenv("DEBUG", "False").lower() in {"true", "1", "yes"}:
-        SECRET_KEY = "N_xsGTkMKK9BYha6hGCYJgoIIMP0WRMZT5IGHN8oESql1L1yqNLdX8GxEmT9god1ops"
+        SECRET_KEY = (
+            "N_xsGTkMKK9BYha6hGCYJgoIIMP0WRMZT5IGHN8oESql1L1yqNLdX8GxEmT9god1ops"
+        )
     else:
         raise ImproperlyConfigured(
             "SECRET_KEY environment variable must be set in production"
@@ -124,6 +142,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Serve static files efficiently
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -232,7 +251,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = os.getenv("TIME_ZONE", "UTC")
 
 USE_I18N = True
 
@@ -247,6 +266,17 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+# WhiteNoise configuration for efficient static file serving
+# Serves static files with compression and caching in production
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Email Configuration
 if os.getenv("EMAIL_BACKEND") == "smtp":
@@ -284,7 +314,7 @@ else:
 
 # Django Allauth Configuration
 # Email is required for registration
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 LOGIN_REDIRECT_URL = "profile"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 
