@@ -11,16 +11,11 @@
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/staticfiles/$1"
-    },
-    {
-      "src": "/media/(.*)",
-      "dest": "/media/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "EventHorizon/wsgi.py"
     }
-  ]
+  ],
+  "env": {
+    "USE_S3_FOR_STATIC": "True"
+  }
 }

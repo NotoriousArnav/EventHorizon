@@ -55,17 +55,25 @@ if not SECRET_KEY:
 else:
     DEBUG = os.getenv("DEBUG", "False").lower() in {"true", "1", "yes"}
 
-ALLOWED_HOSTS = [
-    host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()
-]
+# Parse ALLOWED_HOSTS from environment
+allowed_hosts_str = os.getenv("ALLOWED_HOSTS", "")
+
+if allowed_hosts_str == "*":
+    # Handle wildcard - allow all hosts (development/testing)
+    ALLOWED_HOSTS = ["*"]
+else:
+    # Parse comma-separated list
+    ALLOWED_HOSTS = [
+        host.strip() for host in allowed_hosts_str.split(",") if host.strip()
+    ]
 
 # Auto-detect Vercel deployment
 if os.getenv("VERCEL"):
     vercel_url = os.getenv("VERCEL_URL")
-    if vercel_url and vercel_url not in ALLOWED_HOSTS:
+    if vercel_url and vercel_url not in ALLOWED_HOSTS and "*" not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(vercel_url)
     # Allow all Vercel preview/production deployments
-    if ".vercel.app" not in ALLOWED_HOSTS:
+    if ".vercel.app" not in ALLOWED_HOSTS and "*" not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(".vercel.app")
 
 if DEBUG:
@@ -277,16 +285,34 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-# WhiteNoise configuration for efficient static file serving
-# Serves static files with compression and caching in production
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+# Storage Configuration
+# For Vercel/serverless: Use S3 for static files (no filesystem access)
+# For traditional servers: Use WhiteNoise (efficient, cached)
+
+if os.getenv("VERCEL") or os.getenv("USE_S3_FOR_STATIC", "False").lower() in {
+    "true",
+    "1",
+    "yes",
+}:
+    # Vercel/Serverless: Must use S3 for static files
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "storage.s3.S3StaticStorage",
+        },
+    }
+else:
+    # Traditional server: Use WhiteNoise for efficient static file serving
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 # Email Configuration
 if os.getenv("EMAIL_BACKEND") == "smtp":
@@ -401,8 +427,12 @@ if STORAGE_BACKEND in ["s3", "minio"]:
         },
     }
 
-    # Optionally use S3 for static files (usually not needed in development)
-    if os.getenv("USE_S3_FOR_STATIC", "False").lower() in {"true", "1", "yes"}:
+    # Use S3 for static files if on Vercel or explicitly enabled
+    if os.getenv("VERCEL") or os.getenv("USE_S3_FOR_STATIC", "False").lower() in {
+        "true",
+        "1",
+        "yes",
+    }:
         STORAGES["staticfiles"]["BACKEND"] = "storage.s3.S3StaticStorage"
 
     # Construct media URL
@@ -415,6 +445,20 @@ if STORAGE_BACKEND in ["s3", "minio"]:
     else:
         # Standard AWS S3 URL
         MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/media/"
+
+    # Construct static URL (for Vercel/S3 static serving)
+    if os.getenv("VERCEL") or os.getenv("USE_S3_FOR_STATIC", "False").lower() in {
+        "true",
+        "1",
+        "yes",
+    }:
+        if AWS_S3_CUSTOM_DOMAIN:
+            STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+        elif AWS_S3_ENDPOINT_URL:
+            endpoint = AWS_S3_ENDPOINT_URL.rstrip("/")
+            STATIC_URL = f"{endpoint}/{AWS_STORAGE_BUCKET_NAME}/static/"
+        else:
+            STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/static/"
 else:
     # Local filesystem storage (default for development)
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")

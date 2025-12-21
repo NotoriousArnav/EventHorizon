@@ -20,15 +20,20 @@ else
     echo "No package.json found, skipping Node.js setup"
 fi
 
-# Install Python dependencies
+# Install Python dependencies (Vercel uses pip, not uv)
 echo "Installing Python dependencies..."
-uv pip install --upgrade pip
-uv pip install -r requirements.txt
+pip install --upgrade pip
+pip install -r requirements.txt
 
-# Collect static files
-echo "Collecting static files..."
-uv run python manage.py collectstatic --noinput --clear
+# Set environment for S3 static files on Vercel
+export USE_S3_FOR_STATIC=True
+export VERCEL=1
+
+# Collect static files (will upload to S3 when USE_S3_FOR_STATIC=True)
+echo "Collecting static files to S3..."
+python manage.py collectstatic --noinput --clear
 
 echo "==================================="
 echo "Build completed successfully!"
+echo "Static files uploaded to S3"
 echo "==================================="
