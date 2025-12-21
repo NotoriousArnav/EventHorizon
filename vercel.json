@@ -1,13 +1,11 @@
 {
-  "version": 2,
-  "buildCommand": "bash build_files.sh",
   "builds": [
     {
       "src": "EventHorizon/wsgi.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
-        "runtime": "python3.9"
+        "runtime": "python3.12"
       }
     }
   ],
