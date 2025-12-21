@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktrans %}Confirm Your Email Address - Event Horizon{% endblocktrans %}{% endautoescape %}

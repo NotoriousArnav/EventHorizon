@@ -1,0 +1,20 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
+Welcome to Event Horizon!
+
+You're receiving this transmission because you initiated registration at {{ site_domain }}.
+
+To complete your registration and activate your account, please verify your email address by clicking the link below:
+
+{{ activate_url }}
+
+This verification link will expire in {{ expiration_days }} days.
+
+If you did not initiate this registration, please disregard this message.
+
+---
+Event Horizon Command Center
+{{ site_domain }}
+{% endblocktrans %}
+{% endautoescape %}

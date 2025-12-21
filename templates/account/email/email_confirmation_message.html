@@ -1,0 +1,87 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Your Email - Event Horizon</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a; color: #e5e5e5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #0a0a0a;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; box-shadow: 0 0 50px rgba(124, 58, 237, 0.2);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(90deg, rgba(124, 58, 237, 0.1) 0%, rgba(234, 88, 12, 0.1) 100%);">
+                            <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: linear-gradient(90deg, #ffffff 0%, #a0a0a0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                Event Horizon
+                            </h1>
+                            <p style="margin: 10px 0 0; font-size: 12px; color: #888; letter-spacing: 0.2em; text-transform: uppercase;">
+                                Mission Control
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <h2 style="margin: 0 0 20px; font-size: 24px; font-weight: 600; color: #ffffff; letter-spacing: 0.05em;">
+                                {% trans "Welcome Aboard!" %}
+                            </h2>
+                            
+                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #d0d0d0;">
+                                {% blocktrans with site_domain=current_site.domain %}
+                                You're receiving this transmission because you initiated registration at <strong style="color: #ea580c;">{{ site_domain }}</strong>.
+                                {% endblocktrans %}
+                            </p>
+                            
+                            <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.6; color: #d0d0d0;">
+                                {% trans "To complete your registration and activate your account, please verify your email address by clicking the button below:" %}
+                            </p>
+                            
+                            <!-- CTA Button -->
+                            <table role="presentation" style="margin: 30px 0; width: 100%;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ activate_url }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(90deg, #ea580c 0%, #f97316 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 8px; box-shadow: 0 0 20px rgba(234, 88, 12, 0.5);">
+                                            {% trans "Verify Email Address" %}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 30px 0 0; font-size: 14px; line-height: 1.6; color: #888; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px;">
+                                {% blocktrans with expiration_days=expiration_days %}
+                                This verification link will expire in <strong style="color: #ea580c;">{{ expiration_days }} days</strong>.
+                                {% endblocktrans %}
+                            </p>
+                            
+                            <p style="margin: 10px 0 0; font-size: 14px; line-height: 1.6; color: #888;">
+                                {% trans "If the button doesn't work, copy and paste this link into your browser:" %}
+                            </p>
+                            <p style="margin: 10px 0 0; font-size: 12px; color: #7c3aed; word-break: break-all;">
+                                {{ activate_url }}
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 40px; text-align: center; background-color: rgba(0, 0, 0, 0.3); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                            <p style="margin: 0; font-size: 12px; color: #666;">
+                                {% trans "If you did not initiate this registration, please disregard this message." %}
+                            </p>
+                            <p style="margin: 10px 0 0; font-size: 12px; color: #666;">
+                                Event Horizon Command Center &bull; {{ current_site.domain }}
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

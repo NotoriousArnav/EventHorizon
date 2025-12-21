@@ -318,6 +318,21 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 LOGIN_REDIRECT_URL = "profile"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 
+# Email Verification Settings
+ACCOUNT_EMAIL_REQUIRED = True  # Email is required for signup
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # Options: "none", "optional", "mandatory"
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"  # Allow login with username or email
+ACCOUNT_USERNAME_REQUIRED = True  # Username is required
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3  # Verification link expires after 3 days
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto-login after email verification
+
+# Social Account Settings
+SOCIALACCOUNT_EMAIL_VERIFICATION = (
+    "optional"  # Don't require verification for social logins
+)
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Auto-create account from social login
+SOCIALACCOUNT_QUERY_EMAIL = True  # Request email from social providers
+
 OAUTH2_PROVIDER = {
     # this is the list of available scopes
     "SCOPES": {
