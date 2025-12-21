@@ -22,6 +22,16 @@ jobs:
     - name: Install Dependencies
       run: |
         uv sync
+    - name: Collect Static Files
+      env:
+        DEBUG: 'True'
+        SECRET_KEY: 'test-secret-key-for-ci-only-not-for-production'
+        DATABASE_URL: 'sqlite:///db.sqlite3'
+      run: |
+        mkdir -p static/images
+        # Create placeholder OG image for tests
+        touch static/images/og-default.jpg
+        uv run manage.py collectstatic --noinput
     - name: Run Tests
       env:
         DEBUG: 'True'
