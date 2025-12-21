@@ -228,8 +228,9 @@ def setup_env_file(non_interactive=False):
         print_info("\n--- Database Configuration ---")
         print_info("1. SQLite (default, simple)")
         print_info("2. PostgreSQL (production recommended)")
-        print_info("3. MySQL/MariaDB")
-        print_info("4. Custom DATABASE_URL")
+        print_info("3. Supabase PostgreSQL (managed PostgreSQL with extras)")
+        print_info("4. MySQL/MariaDB")
+        print_info("5. Custom DATABASE_URL")
 
     db_choice = get_input(
         "Select database", "1", non_interactive=non_interactive, env_var="DB_TYPE"
@@ -275,6 +276,76 @@ def setup_env_file(non_interactive=False):
         print_success("PostgreSQL configuration added")
     elif db_choice == "3":
         if not non_interactive:
+            print_info("Supabase PostgreSQL configuration:")
+            print_info("Get your connection string from: Project Settings > Database")
+            print_warning("Make sure to install: uv add psycopg2-binary")
+
+        # Option 1: Use full connection string
+        use_connection_string = yes_no(
+            "Use Supabase connection string (recommended)?",
+            True,
+            non_interactive=non_interactive,
+            env_var="SUPABASE_USE_CONNECTION_STRING",
+        )
+
+        if use_connection_string:
+            db_url = get_input(
+                "Supabase connection string (from Project Settings > Database)",
+                "",
+                non_interactive=non_interactive,
+                env_var="DATABASE_URL",
+            )
+            if db_url:
+                env_config["DATABASE_URL"] = db_url
+                print_success("Supabase PostgreSQL configured via connection string")
+        else:
+            # Option 2: Manual configuration
+            if not non_interactive:
+                print_info("Manual Supabase configuration:")
+            project_ref = get_input(
+                "Supabase Project Reference (from project URL)",
+                "",
+                non_interactive=non_interactive,
+                env_var="SUPABASE_PROJECT_REF",
+            )
+            db_pass = get_input(
+                "Database password (from Project Settings > Database)",
+                "",
+                non_interactive=non_interactive,
+                env_var="DB_PASSWORD",
+            )
+            db_host = get_input(
+                "Database host",
+                f"db.{project_ref}.supabase.co"
+                if project_ref
+                else "db.xxxxx.supabase.co",
+                non_interactive=non_interactive,
+                env_var="DB_HOST",
+            )
+            db_port = get_input(
+                "Database port",
+                "5432",
+                non_interactive=non_interactive,
+                env_var="DB_PORT",
+            )
+            db_name = get_input(
+                "Database name",
+                "postgres",
+                non_interactive=non_interactive,
+                env_var="DB_NAME",
+            )
+            db_user = get_input(
+                "Database user",
+                "postgres",
+                non_interactive=non_interactive,
+                env_var="DB_USER",
+            )
+            env_config["DATABASE_URL"] = (
+                f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
+            )
+            print_success("Supabase PostgreSQL configured manually")
+    elif db_choice == "4":
+        if not non_interactive:
             print_info("MySQL/MariaDB configuration:")
             print_warning("Make sure to install: uv add mysqlclient")
         db_user = get_input(
@@ -305,7 +376,7 @@ def setup_env_file(non_interactive=False):
             f"mysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
         )
         print_success("MySQL configuration added")
-    elif db_choice == "4":
+    elif db_choice == "5":
         db_url = get_input(
             "Enter DATABASE_URL",
             "",
@@ -437,9 +508,10 @@ def setup_env_file(non_interactive=False):
         print_info("\n--- Storage Configuration ---")
         print_info("1. Local filesystem (development)")
         print_info("2. AWS S3")
-        print_info("3. MinIO (self-hosted S3-compatible)")
-        print_info("4. DigitalOcean Spaces")
-        print_info("5. Cloudflare R2")
+        print_info("3. Supabase Storage (S3-compatible, integrated with Supabase)")
+        print_info("4. MinIO (self-hosted S3-compatible)")
+        print_info("5. DigitalOcean Spaces")
+        print_info("6. Cloudflare R2")
 
     storage_choice = get_input(
         "Select storage backend",
@@ -480,6 +552,67 @@ def setup_env_file(non_interactive=False):
         env_config["AWS_S3_USE_SSL"] = "True"
         print_success("AWS S3 configuration added")
     elif storage_choice == "3":
+        if not non_interactive:
+            print_info("Supabase Storage configuration:")
+            print_info("1. Go to Supabase Dashboard > Storage")
+            print_info("2. Create a bucket (e.g., 'eventhorizon')")
+            print_info("3. Go to Settings > API > S3 Access Keys")
+            print_info("4. Generate new access keys")
+
+        env_config["STORAGE_BACKEND"] = "s3"
+
+        project_ref = get_input(
+            "Supabase Project Reference (from project URL, e.g., abcdefghijklmnop)",
+            "",
+            non_interactive=non_interactive,
+            env_var="SUPABASE_PROJECT_REF",
+        )
+
+        env_config["AWS_ACCESS_KEY_ID"] = get_input(
+            "Supabase S3 Access Key ID (starts with 'sb')",
+            "",
+            non_interactive=non_interactive,
+            env_var="AWS_ACCESS_KEY_ID",
+        )
+        env_config["AWS_SECRET_ACCESS_KEY"] = get_input(
+            "Supabase S3 Secret Access Key",
+            "",
+            non_interactive=non_interactive,
+            env_var="AWS_SECRET_ACCESS_KEY",
+        )
+        env_config["AWS_STORAGE_BUCKET_NAME"] = get_input(
+            "Storage bucket name",
+            "eventhorizon",
+            non_interactive=non_interactive,
+            env_var="AWS_STORAGE_BUCKET_NAME",
+        )
+
+        # Construct Supabase S3 endpoint
+        if project_ref:
+            endpoint = f"https://{project_ref}.supabase.co/storage/v1/s3"
+            cdn_domain = f"{project_ref}.supabase.co/storage/v1/object/public/{env_config['AWS_STORAGE_BUCKET_NAME']}"
+        else:
+            endpoint = get_input(
+                "Supabase S3 Endpoint URL",
+                "https://xxxxx.supabase.co/storage/v1/s3",
+                non_interactive=non_interactive,
+                env_var="AWS_S3_ENDPOINT_URL",
+            )
+            cdn_domain = ""
+
+        env_config["AWS_S3_ENDPOINT_URL"] = endpoint
+        env_config["AWS_S3_REGION_NAME"] = "us-east-1"
+        env_config["AWS_S3_USE_SSL"] = "True"
+
+        # Optional: Add custom domain for CDN access
+        if cdn_domain:
+            env_config["AWS_S3_CUSTOM_DOMAIN"] = cdn_domain
+
+        print_success("Supabase Storage configured")
+        if not non_interactive:
+            print_info("Tip: Make sure your bucket is public for avatar uploads")
+            print_info("See docs/storage/supabase.md for detailed setup guide")
+    elif storage_choice == "4":
         env_config["STORAGE_BACKEND"] = "minio"
         env_config["AWS_ACCESS_KEY_ID"] = get_input(
             "MinIO Access Key",
@@ -508,7 +641,7 @@ def setup_env_file(non_interactive=False):
         env_config["AWS_S3_USE_SSL"] = "False"
         env_config["AWS_S3_REGION_NAME"] = "us-east-1"
         print_success("MinIO configuration added")
-    elif storage_choice == "4":
+    elif storage_choice == "5":
         env_config["STORAGE_BACKEND"] = "s3"
         env_config["AWS_ACCESS_KEY_ID"] = get_input(
             "Spaces Access Key",
@@ -538,7 +671,7 @@ def setup_env_file(non_interactive=False):
         env_config["AWS_S3_REGION_NAME"] = "us-east-1"
         env_config["AWS_S3_USE_SSL"] = "True"
         print_success("DigitalOcean Spaces configuration added")
-    elif storage_choice == "5":
+    elif storage_choice == "6":
         env_config["STORAGE_BACKEND"] = "s3"
         env_config["AWS_ACCESS_KEY_ID"] = get_input(
             "R2 Access Key ID",
@@ -617,6 +750,7 @@ def setup_env_file(non_interactive=False):
             "AWS_S3_REGION_NAME",
             "AWS_S3_ENDPOINT_URL",
             "AWS_S3_USE_SSL",
+            "AWS_S3_CUSTOM_DOMAIN",
         ]:
             if key in env_config:
                 f.write(f"{key}={env_config[key]}\n")
@@ -806,13 +940,15 @@ Environment Variables (used in --no-interactive mode):
   SECRET_KEY              - Django secret key
   DEBUG                   - Enable debug mode (true/false)
   ALLOWED_HOSTS           - Comma-separated allowed hosts
-  DB_TYPE                 - Database type (1=SQLite, 2=PostgreSQL, 3=MySQL, 4=Custom)
+  DB_TYPE                 - Database type (1=SQLite, 2=PostgreSQL, 3=Supabase, 4=MySQL, 5=Custom)
   DB_USER                 - Database username
   DB_PASSWORD             - Database password
   DB_HOST                 - Database host
   DB_PORT                 - Database port
   DB_NAME                 - Database name
-  DATABASE_URL            - Full database URL (for custom DB)
+  DATABASE_URL            - Full database URL (for custom DB or Supabase)
+  SUPABASE_PROJECT_REF    - Supabase project reference (e.g., abcdefghijklmnop)
+  SUPABASE_USE_CONNECTION_STRING - Use Supabase connection string (true/false)
   CORS_ALLOW_ALL          - Allow all CORS origins (true/false)
   CORS_ORIGINS            - Comma-separated CORS origins
   EMAIL_BACKEND_TYPE      - Email backend (1=Console, 2=SMTP, 3=SendGrid, 4=Mailgun)
@@ -824,12 +960,13 @@ Environment Variables (used in --no-interactive mode):
   SENDGRID_API_KEY        - SendGrid API key
   MAILGUN_API_KEY         - Mailgun API key
   MAILGUN_SENDER_DOMAIN   - Mailgun sender domain
-  STORAGE_TYPE            - Storage backend (1=Local, 2=S3, 3=MinIO, 4=DO Spaces, 5=R2)
-  AWS_ACCESS_KEY_ID       - AWS/S3 access key
-  AWS_SECRET_ACCESS_KEY   - AWS/S3 secret key
+  STORAGE_TYPE            - Storage backend (1=Local, 2=S3, 3=Supabase, 4=MinIO, 5=DO Spaces, 6=R2)
+  AWS_ACCESS_KEY_ID       - AWS/S3 access key (or Supabase S3 key)
+  AWS_SECRET_ACCESS_KEY   - AWS/S3 secret key (or Supabase S3 secret)
   AWS_STORAGE_BUCKET_NAME - S3 bucket name
   AWS_S3_REGION_NAME      - S3 region
-  AWS_S3_ENDPOINT_URL     - S3 endpoint URL (for MinIO/R2/Spaces)
+  AWS_S3_ENDPOINT_URL     - S3 endpoint URL (for Supabase/MinIO/R2/Spaces)
+  AWS_S3_CUSTOM_DOMAIN    - Custom domain for S3 access (optional, for Supabase CDN)
   CLOUDFLARE_ACCOUNT_ID   - Cloudflare R2 account ID
   CREATE_SUPERUSER        - Create superuser (true/false)
   SUPERUSER_USERNAME      - Superuser username
