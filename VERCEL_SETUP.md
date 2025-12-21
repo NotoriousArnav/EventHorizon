@@ -1,5 +1,6 @@
 # Vercel Deployment Setup Guide
 
+
 ## ⚠️ Important: Vercel Limitations for Django
 
 Vercel runs Django as **serverless functions**, which has significant limitations:
