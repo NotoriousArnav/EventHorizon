@@ -318,6 +318,9 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 LOGIN_REDIRECT_URL = "profile"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 
+# Custom Account Adapter (auto-verifies staff/superuser emails)
+ACCOUNT_ADAPTER = "users.adapters.account.CustomAccountAdapter"
+
 # Email Verification Settings
 ACCOUNT_EMAIL_REQUIRED = True  # Email is required for signup
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # Options: "none", "optional", "mandatory"
@@ -325,6 +328,9 @@ ACCOUNT_AUTHENTICATION_METHOD = "username_email"  # Allow login with username or
 ACCOUNT_USERNAME_REQUIRED = True  # Username is required
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3  # Verification link expires after 3 days
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto-login after email verification
+
+# NOTE: Staff and superuser accounts are exempted from email verification
+# via CustomAccountAdapter. Their emails are auto-verified on signup/login.
 
 # Social Account Settings
 SOCIALACCOUNT_EMAIL_VERIFICATION = (
