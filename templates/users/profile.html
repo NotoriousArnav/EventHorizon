@@ -1,3 +1,20 @@
+<!--
+Event Horizon - Futuristic Event Management Platform
+Copyright (C) 2025-2026 Arnav Ghosh
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
@@ -53,6 +70,12 @@
                 <div class="flex items-center gap-6">
                     <a href="{% url 'event-list' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
                         Missions
+                    </a>
+                    <a href="{% url 'oauth2-apps' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        OAuth2 Apps
+                    </a>
+                    <a href="{% url 'api-keys' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        API Keys
                     </a>
                     {% if user.is_staff %}
                     <a href="{% url 'admin:index' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">

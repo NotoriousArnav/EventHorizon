@@ -1,0 +1,106 @@
+<!--
+Event Horizon - Futuristic Event Management Platform
+Copyright (C) 2025-2026 Arnav Ghosh
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Create OAuth2 Application | Event Horizon{% endblock %}
+
+{% block content %}
+<div class="min-h-screen relative overflow-x-hidden font-sans">
+    
+    <!-- Deep Space Background -->
+    <div class="fixed inset-0 z-0">
+        <div class="absolute inset-0 bg-black"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="relative z-50 border-b border-white/5 bg-black/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="/" class="font-display font-bold text-2xl text-white tracking-wider hover:text-orange-500 transition-colors">
+                        EVENT<span class="text-orange-500">HORIZON</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="{% url 'oauth2-apps' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        ← Back to Apps
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        
+        <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden">
+            <div class="p-6 border-b border-white/5 bg-white/5">
+                <h1 class="text-2xl font-display font-bold text-white">Create OAuth2 Application</h1>
+                <p class="text-sm text-gray-400 mt-1">Set up a new OAuth2 application for third-party integration</p>
+            </div>
+
+            <form method="POST" class="p-8 space-y-6">
+                {% csrf_token %}
+                
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-gray-400 uppercase tracking-wide">Application Name *</label>
+                    <input type="text" name="name" required class="appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300" placeholder="My Awesome App">
+                    <p class="text-xs text-gray-500">A descriptive name for your application</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-gray-400 uppercase tracking-wide">Client Type *</label>
+                    <select name="client_type" class="appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300">
+                        {% for value, label in client_types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="text-xs text-gray-500">Confidential for server-side apps, Public for mobile/JS apps</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-gray-400 uppercase tracking-wide">Authorization Grant Type *</label>
+                    <select name="authorization_grant_type" class="appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300">
+                        {% for value, label in grant_types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="text-xs text-gray-500">Select the OAuth2 flow for your application</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-gray-400 uppercase tracking-wide">Redirect URIs</label>
+                    <textarea name="redirect_uris" rows="4" class="appearance-none relative block w-full px-3 py-3 border border-white/10 placeholder-gray-500 text-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm bg-black/50 backdrop-blur-sm transition-all duration-300 font-mono" placeholder="https://myapp.com/callback&#10;http://localhost:8000/callback"></textarea>
+                    <p class="text-xs text-gray-500">One URI per line. Required for authorization code flow.</p>
+                </div>
+
+                <div class="pt-6 flex items-center justify-end gap-4 border-t border-white/5">
+                    <a href="{% url 'oauth2-apps' %}" class="px-6 py-3 text-gray-400 hover:text-white transition-colors">Cancel</a>
+                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-lg shadow-lg shadow-orange-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        Create Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}
