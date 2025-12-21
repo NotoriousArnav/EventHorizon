@@ -28,9 +28,10 @@ jobs:
         SECRET_KEY: 'test-secret-key-for-ci-only-not-for-production'
         DATABASE_URL: 'sqlite:///db.sqlite3'
       run: |
+        # Create placeholder social media images for tests (if not in repo)
         mkdir -p static/images
-        # Create placeholder OG image for tests
         touch static/images/og-default.jpg
+        touch static/images/twitter-card.jpg
         uv run manage.py collectstatic --noinput
     - name: Run Tests
       env:
