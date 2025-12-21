@@ -112,8 +112,62 @@ For complete configuration options, see [Configuration Guide](docs/setup/configu
 
 ## 🤝 Contributing
 
-Transmission lines are open. Fork the repository and submit a pull request with your enhancements.
+Transmission lines are open! We welcome contributions from the community.
+
+**Before contributing, please:**
+- Read our [Contributing Guide](CONTRIBUTING.md) for detailed guidelines
+- Review our code style and testing requirements
+- Understand that all contributions will be licensed under GPL-3.0
+
+**Quick start for contributors:**
+```bash
+# Fork and clone the repository
+git clone https://github.com/YOUR-USERNAME/EventHorizon.git
+
+# Set up development environment
+./build.sh
+python init_project.py
+
+# Create a feature branch
+git checkout -b feature/your-feature-name
+
+# Make changes, test, and submit a PR
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete contribution process.
 
 ## 📄 License
 
-Classified. (MIT License)
+Event Horizon is **free and open source software** licensed under the [GNU General Public License v3.0 (GPL-3.0)](LICENSE).
+
+### What This Means
+
+**You are free to:**
+- **Use** the software for any purpose
+- **Study** how the program works and modify it
+- **Share** copies of the software
+- **Distribute** your modified versions
+
+**Under these conditions:**
+- **Source code availability:** If you distribute the software, you must make the source code available
+- **Same license:** Derivative works must be licensed under GPL-3.0
+- **State changes:** You must document modifications you make
+- **No warranty:** The software is provided "as is" without warranty
+
+### Key Points
+
+- **Copyleft:** GPL-3.0 is a "copyleft" license, ensuring the software and its derivatives remain free
+- **Commercial use:** You can use Event Horizon commercially, but must comply with GPL-3.0 terms
+- **Dependencies:** All dependencies are GPL-3.0 compatible (see [DEPENDENCIES.md](DEPENDENCIES.md))
+- **Contributing:** By contributing, you agree to license your contributions under GPL-3.0
+
+### License Files
+
+- **[LICENSE](LICENSE)** - Full GPL-3.0 license text
+- **[DEPENDENCIES.md](DEPENDENCIES.md)** - Third-party dependency licenses
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contributor license agreement
+
+For more information about GPL-3.0, visit:
+- [Official GPL-3.0 Text](https://www.gnu.org/licenses/gpl-3.0.html)
+- [GPL-3.0 FAQ](https://www.gnu.org/licenses/gpl-faq.html)
+- [Quick Guide to GPL-3.0](https://www.gnu.org/licenses/quick-guide-gplv3.html)
