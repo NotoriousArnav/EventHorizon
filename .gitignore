@@ -4,7 +4,7 @@ server.key
 __pycache__/
 .venv/
 .env
-staticfiles/
+# staticfiles/
 *.log
 .DS_Store
 .idea/
