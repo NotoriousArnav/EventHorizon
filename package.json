@@ -11,6 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
     "watch:css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",
+    "vercel-build": "npm run build:css && python manage.py collectstatic --noinput",
     "setup": "bash build.sh && python init_project.py",
     "setup:auto": "bash build.sh && python init_project.py --no-interactive",
     "setup:build-only": "bash build.sh",
