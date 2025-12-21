@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "EventHorizon/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.12"
+      }
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "staticfiles"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
+    {
+      "src": "/media/(.*)",
+      "continue": true
+    },
+    {
+      "src": "/(.*)",
+      "dest": "EventHorizon/wsgi.py"
+    }
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "EventHorizon.settings",
+    "PYTHON_VERSION": "3.12"
+  },
+  "framework": null,
+  "installCommand": "pip install --upgrade pip && pip install -r requirements.txt && npm install",
+  "buildCommand": "python manage.py collectstatic --noinput && npm run build:css",
+  "devCommand": "python manage.py runserver"
+}
