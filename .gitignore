@@ -16,4 +16,3 @@ staticfiles/
 php-client/config.php
 node_modules/
 static/css/output.css
-package-lock.json
