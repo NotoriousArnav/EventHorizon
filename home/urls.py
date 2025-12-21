@@ -15,8 +15,9 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from django.urls import path
-from .views import HomeView
+from .views import HomeView, health_check
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    path("health/", health_check, name="health_check"),
 ]

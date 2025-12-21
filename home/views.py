@@ -15,8 +15,11 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from django.views.generic import TemplateView
+from django.http import JsonResponse
+from django.db import connection
 from events.models import Event
 from django.utils import timezone
+import datetime
 
 
 class HomeView(TemplateView):
@@ -28,3 +31,39 @@ class HomeView(TemplateView):
             start_time__gte=timezone.now()
         ).order_by("start_time")[:3]
         return context
+
+
+def health_check(request):
+    """
+    Health check endpoint for monitoring services (UptimeRobot, etc.)
+    Returns JSON with system status and database connectivity.
+    """
+    try:
+        # Check database connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+
+        # Check if we can query the database
+        event_count = Event.objects.count()
+
+        return JsonResponse(
+            {
+                "status": "healthy",
+                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                "database": "connected",
+                "service": "Event Horizon",
+                "events_count": event_count,
+                "version": "1.0.0",
+            }
+        )
+    except Exception as e:
+        return JsonResponse(
+            {
+                "status": "unhealthy",
+                "error": str(e),
+                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                "database": "disconnected",
+                "service": "Event Horizon",
+            },
+            status=503,
+        )
