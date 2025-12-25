@@ -156,106 +156,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     </div>
                 </div>
 
-                <!-- Organizer Management Panel -->
-                {% if user == event.organizer %}
-                <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5 p-8">
-                    <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3">
-                        <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-                        Manage Crew Roster
-                    </h3>
-                    
-                    <div class="mb-4 flex flex-wrap items-center gap-3">
-                         <a href="{% url 'event-export' event.slug %}" class="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 uppercase tracking-widest">
-                            Export Data (CSV)
-                        </a>
-                        <a href="{% url 'webhook-create' event.slug %}" class="inline-flex items-center px-4 py-2 border border-white/10 text-xs font-medium rounded-full shadow-sm text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 uppercase tracking-widest">
-                            Add Webhook
-                        </a>
-                    </div>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead class="text-xs uppercase text-gray-500 border-b border-white/10">
-                                <tr>
-                                    <th class="px-4 py-3">Personnel</th>
-                                    <th class="px-4 py-3">Registered At</th>
-                                    <th class="px-4 py-3">Status</th>
-                                    <th class="px-4 py-3">Data</th>
-                                    <th class="px-4 py-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5">
-                                {% if registrations %}
-                                {% for reg in registrations %}
-                                <tr class="hover:bg-white/5 transition-colors">
-                                    <td class="px-4 py-3">
-                                         <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded-full bg-gray-800 overflow-hidden">
-                                                {% if reg.participant.profile.avatar %}
-                                                <img src="{{ reg.participant.profile.avatar.url }}" alt="{{ reg.participant.username }} avatar" class="w-full h-full object-cover">
-                                                {% else %}
-                                                <div class="w-full h-full flex items-center justify-center text-gray-500 text-xs" aria-label="No avatar">?</div>
-                                                {% endif %}
-                                            </div>
-                                            <span class="text-gray-200">{{ reg.participant.username }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 text-gray-400">{{ reg.registered_at|date:"M d, H:i" }}</td>
-                                    <td class="px-4 py-3">
-                                        {% if reg.status == 'registered' %}
-                                        <span class="px-2 py-0.5 rounded text-[10px] bg-green-900/30 text-green-400 border border-green-500/20 uppercase">Approved</span>
-                                        {% elif reg.status == 'waitlisted' %}
-                                        <span class="px-2 py-0.5 rounded text-[10px] bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 uppercase">Waitlisted</span>
-                                        {% else %}
-                                        <span class="px-2 py-0.5 rounded text-[10px] bg-red-900/30 text-red-400 border border-red-500/20 uppercase">Not Approved</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        {% if reg.answers %}
-                                            <button onclick="openAnswersModal('{{ reg.id }}')" class="text-xs text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                View
-                                            </button>
-                                            <!-- Hidden data for JS to read -->
-                                            <script id="answers-data-{{ reg.id }}" type="application/json">
-                                                {{ reg.answers|jsonify|safe }}
-                                            </script>
-                                            <script id="user-data-{{ reg.id }}" type="application/json">
-                                                "{{ reg.participant.username }}"
-                                            </script>
-                                        {% else %}
-                                            <span class="text-gray-600 text-xs">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-4 py-3 text-right">
-                                        <form method="post" action="{% url 'manage-registration' reg.id %}" class="flex justify-end gap-2">
-                                            {% csrf_token %}
-                                            {% if reg.status != 'registered' %}
-                                            <button type="submit" name="action" value="approve" class="text-xs text-green-400 hover:text-green-300 hover:underline">Approve</button>
-                                            {% endif %}
-                                            {% if reg.status != 'waitlisted' %}
-                                            <button type="submit" name="action" value="waitlist" class="text-xs text-yellow-400 hover:text-yellow-300 hover:underline">Waitlist</button>
-                                            {% endif %}
-                                            {% if reg.status != 'cancelled' %}
-                                            <button type="submit" name="action" value="cancel" class="text-xs text-red-400 hover:text-red-300 hover:underline">Not Approve</button>
-                                            {% endif %}
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">
-                                        No crew registrations yet.
-                                    </td>
-                                </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {% endif %}
-
+                <!-- Registration / crew controls moved to sidebar -->
                 <!-- Description -->
                 <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5 p-8">
                     <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3">
@@ -267,6 +168,113 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     </div>
                     <script type="text/plain" id="markdown-content">{{ event.description }}</script>
                 </div>
+
+                <!-- Organizer Management Panel -->
+                {% if user == event.organizer %}
+                <details class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5">
+                    <summary class="cursor-pointer list-none p-8">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-display font-bold text-white flex items-center gap-3">
+                                <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
+                                Manage Crew Roster
+                            </h3>
+                            <span class="text-xs text-gray-500 uppercase tracking-widest">Tap to toggle</span>
+                        </div>
+                    </summary>
+
+                    <div class="px-8 pb-8">
+                        <div class="mb-4 flex flex-wrap items-center gap-3">
+                            <a href="{% url 'event-export' event.slug %}" class="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 uppercase tracking-widest">
+                                Export Data (CSV)
+                            </a>
+                            <a href="{% url 'webhook-create' event.slug %}" class="inline-flex items-center px-4 py-2 border border-white/10 text-xs font-medium rounded-full shadow-sm text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 uppercase tracking-widest">
+                                Add Webhook
+                            </a>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="text-xs uppercase text-gray-500 border-b border-white/10">
+                                    <tr>
+                                        <th class="px-4 py-3">Personnel</th>
+                                        <th class="px-4 py-3">Registered At</th>
+                                        <th class="px-4 py-3">Status</th>
+                                        <th class="px-4 py-3">Data</th>
+                                        <th class="px-4 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    {% if registrations %}
+                                    {% for reg in registrations %}
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-gray-800 overflow-hidden">
+                                                    {% if reg.participant.profile.avatar %}
+                                                    <img src="{{ reg.participant.profile.avatar.url }}" alt="{{ reg.participant.username }} avatar" class="w-full h-full object-cover">
+                                                    {% else %}
+                                                    <div class="w-full h-full flex items-center justify-center text-gray-500 text-xs" aria-label="No avatar">?</div>
+                                                    {% endif %}
+                                                </div>
+                                                <span class="text-gray-200">{{ reg.participant.username }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-400">{{ reg.registered_at|date:"M d, H:i" }}</td>
+                                        <td class="px-4 py-3">
+                                            {% if reg.status == 'registered' %}
+                                            <span class="px-2 py-0.5 rounded text-[10px] bg-green-900/30 text-green-400 border border-green-500/20 uppercase">Approved</span>
+                                            {% elif reg.status == 'waitlisted' %}
+                                            <span class="px-2 py-0.5 rounded text-[10px] bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 uppercase">Waitlisted</span>
+                                            {% else %}
+                                            <span class="px-2 py-0.5 rounded text-[10px] bg-red-900/30 text-red-400 border border-red-500/20 uppercase">Not Approved</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            {% if reg.answers %}
+                                                <button onclick="openAnswersModal('{{ reg.id }}')" class="text-xs text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                    View
+                                                </button>
+                                                <!-- Hidden data for JS to read -->
+                                                <script id="answers-data-{{ reg.id }}" type="application/json">
+                                                    {{ reg.answers|jsonify|safe }}
+                                                </script>
+                                                <script id="user-data-{{ reg.id }}" type="application/json">
+                                                    "{{ reg.participant.username }}"
+                                                </script>
+                                            {% else %}
+                                                <span class="text-gray-600 text-xs">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3 text-right">
+                                            <form method="post" action="{% url 'manage-registration' reg.id %}" class="flex justify-end gap-2">
+                                                {% csrf_token %}
+                                                {% if reg.status != 'registered' %}
+                                                <button type="submit" name="action" value="approve" class="text-xs text-green-400 hover:text-green-300 hover:underline">Approve</button>
+                                                {% endif %}
+                                                {% if reg.status != 'waitlisted' %}
+                                                <button type="submit" name="action" value="waitlist" class="text-xs text-yellow-400 hover:text-yellow-300 hover:underline">Waitlist</button>
+                                                {% endif %}
+                                                {% if reg.status != 'cancelled' %}
+                                                <button type="submit" name="action" value="cancel" class="text-xs text-red-400 hover:text-red-300 hover:underline">Not Approve</button>
+                                                {% endif %}
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                                            No crew registrations yet.
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </details>
+                {% endif %}
 
             </div>
 
@@ -293,12 +301,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     </div>
                 </div>
 
-                <!-- Registration Status -->
+                <!-- Crew Manifest (moved to sidebar) -->
                 <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5 p-6 relative overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent"></div>
                     <div class="relative z-10">
                         <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Crew Manifest</h3>
-                        
+
                         <div class="mb-6">
                             <div class="flex justify-between text-sm mb-2">
                                 <span class="text-gray-300">Capacity Status</span>
@@ -398,15 +406,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 </div>
 
                 {% if user == event.organizer %}
-                <!-- Admin Controls -->
+                <!-- Danger Zone (moved to sidebar) -->
                 <div class="bg-red-900/10 backdrop-blur-md rounded-2xl border border-red-500/20 p-6">
                     <h3 class="text-xs font-bold text-red-500 uppercase tracking-widest mb-4">Danger Zone</h3>
+                    <p class="p-3">If you delete this Mission you will Loose all data of this Mission including Registrations and Form Data.</p>
                     <a href="{% url 'event-delete' event.slug %}" class="block w-full text-center py-2 px-4 border border-red-500/50 text-red-400 rounded hover:bg-red-900/30 transition-colors text-sm">
                         Abort Mission (Delete)
                     </a>
                 </div>
                 {% endif %}
-
             </div>
         </div>
 
