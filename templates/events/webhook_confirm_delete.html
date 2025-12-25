@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Delete Webhook | {{ object.event.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen relative overflow-x-hidden font-sans">
+    <div class="fixed inset-0 z-0">
+        <div class="absolute inset-0 bg-black"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+    </div>
+
+    <main class="relative z-10 max-w-2xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        <div class="bg-red-900/10 backdrop-blur-md rounded-2xl border border-red-500/20 p-8">
+            <h1 class="text-2xl font-display font-bold text-white uppercase tracking-wide mb-3">
+                Delete Webhook
+            </h1>
+            <p class="text-sm text-gray-300 mb-6">
+                Remove the webhook endpoint:
+                <span class="font-mono text-red-300">{{ object.url }}</span>
+            </p>
+
+            <form method="post" class="flex flex-wrap items-center gap-3">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-full text-xs font-medium text-white bg-red-600 hover:bg-red-700 uppercase tracking-widest">
+                    Delete
+                </button>
+                <a href="{% url 'event-detail' object.event.slug %}" class="inline-flex items-center px-5 py-2.5 rounded-full text-xs font-medium text-gray-200 bg-gray-800 hover:bg-gray-700 border border-white/10 uppercase tracking-widest">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}

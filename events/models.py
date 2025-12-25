@@ -79,3 +79,16 @@ class Registration(models.Model):
 
     def __str__(self):
         return f"{self.participant} - {self.event.title}"
+
+
+class Webhook(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="webhooks")
+    url = models.URLField(help_text="URL to receive JSON notifications")
+    secret = models.CharField(
+        max_length=255, blank=True, help_text="Secret for signature verification"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Webhook for {self.event.title} ({self.url})"

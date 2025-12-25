@@ -14,32 +14,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from rest_framework import viewsets, permissions, status
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
 from .models import Event, Registration
+from .notifications import (
+    send_organizer_registration_email,
+    send_participant_registration_recorded_email,
+)
 from .serializers import EventSerializer, RegistrationSerializer
+from .webhook_utils import trigger_webhook_async
 
 
 class IsOrganizerOrReadOnly(permissions.BasePermission):
-    """
-    Custom permission to only allow organizers of an object to edit it.
-    """
+    """Custom permission to only allow organizers of an object to edit it."""
 
     def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in permissions.SAFE_METHODS:
             return True
-
-        # Write permissions are only allowed to the organizer of the event.
         return obj.organizer == request.user
 
 
 class EventViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows events to be viewed or edited.
-    """
+    """API endpoint that allows events to be viewed or edited."""
 
     queryset = Event.objects.all().order_by("-start_time")
     serializer_class = EventSerializer
@@ -52,34 +50,55 @@ class EventViewSet(viewsets.ModelViewSet):
         detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
     )
     def register(self, request, pk=None):
-        """Register the current user for an event"""
+        """Register the current user for an event."""
+
         event = self.get_object()
         user = request.user
 
-        # Check if already registered
         if Registration.objects.filter(event=event, participant=user).exists():
             return Response(
                 {"detail": "You are already registered for this event."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Check capacity
+        answers = request.data.get("answers", {})
+
         current_registrations = Registration.objects.filter(
             event=event, status="registered"
         ).count()
-        if current_registrations >= event.capacity:
-            return Response(
-                {"detail": "This event is at full capacity."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
-        # Create registration
+        status_value = "registered"
+        if current_registrations >= event.capacity:
+            status_value = "waitlisted"
+
         registration = Registration.objects.create(
             event=event,
             participant=user,
-            status="registered",
-            answers=request.data.get("answers", {}),
+            status=status_value,
+            answers=answers,
         )
+
+        send_organizer_registration_email(registration=registration, request=request)
+        send_participant_registration_recorded_email(
+            registration=registration, request=request
+        )
+
+        webhooks = event.webhooks.filter(is_active=True)
+        if webhooks.exists():
+            payload = {
+                "event": "registration.created",
+                "mission_id": event.slug,
+                "mission_title": event.title,
+                "participant": {
+                    "username": user.username,
+                    "email": user.email,
+                },
+                "status": registration.status,
+                "registered_at": registration.registered_at,
+                "answers": registration.answers,
+            }
+            for webhook in webhooks:
+                trigger_webhook_async(webhook.url, payload)
 
         serializer = RegistrationSerializer(registration)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -88,7 +107,8 @@ class EventViewSet(viewsets.ModelViewSet):
         detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
     )
     def unregister(self, request, pk=None):
-        """Unregister the current user from an event"""
+        """Unregister the current user from an event."""
+
         event = self.get_object()
         user = request.user
 
@@ -109,10 +129,10 @@ class EventViewSet(viewsets.ModelViewSet):
         detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated]
     )
     def registrations(self, request, pk=None):
-        """Get all registrations for an event (organizer only)"""
+        """Get all registrations for an event (organizer only)."""
+
         event = self.get_object()
 
-        # Only organizer can view registrations
         if event.organizer != request.user:
             return Response(
                 {"detail": "Only the event organizer can view registrations."},
@@ -127,15 +147,12 @@ class EventViewSet(viewsets.ModelViewSet):
 
 
 class RegistrationViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint to view user's own registrations.
-    """
+    """API endpoint to view user's own registrations."""
 
     serializer_class = RegistrationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Return registrations for the current user only"""
         return Registration.objects.filter(participant=self.request.user).order_by(
             "-registered_at"
         )

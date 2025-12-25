@@ -56,6 +56,26 @@ urlpatterns = [
         name="event-export",
     ),
     path(
+        "events/<slug:slug>/webhooks/new/",
+        views.WebhookCreateView.as_view(),
+        name="webhook-create",
+    ),
+    path(
+        "webhooks/<int:pk>/edit/",
+        views.WebhookUpdateView.as_view(),
+        name="webhook-update",
+    ),
+    path(
+        "webhooks/<int:pk>/delete/",
+        views.WebhookDeleteView.as_view(),
+        name="webhook-delete",
+    ),
+    path(
+        "webhooks/<int:pk>/toggle/",
+        views.WebhookToggleActiveView.as_view(),
+        name="webhook-toggle",
+    ),
+    path(
         "registration/<int:registration_id>/manage/",
         views.ManageRegistrationView.as_view(),
         name="manage-registration",

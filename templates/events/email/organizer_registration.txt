@@ -1,0 +1,22 @@
+Event Horizon • Mission Control ({{ current_site.domain }})
+
+New registration received
+
+Mission: {{ event.title }}
+Status: {{ status }}
+Registered at: {{ registered_at }}
+{% if event_url %}Mission dashboard: {{ event_url }}{% endif %}
+
+Participant Profile
+- Username: {{ participant.username }}
+- First name: {{ participant.first_name|default:"" }}
+- Last name: {{ participant.last_name|default:"" }}
+- Email: {{ participant.email|default:"" }}
+
+Registration Intel
+{% if answer_items %}{% for item in answer_items %}- {{ item.label }} ({{ item.id }}): {{ item.value|default:"" }}
+{% endfor %}{% else %}- No registration form answers were provided.
+{% endif %}
+
+Raw answers payload:
+{{ answers_json }}

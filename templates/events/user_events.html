@@ -46,6 +46,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     <a href="{% url 'event-list' %}" class="text-sm font-medium text-white uppercase tracking-wider hover:text-orange-500 transition-colors">
                         Missions
                     </a>
+                    <a href="https://brocode-tech.netlify.app" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        Community
+                    </a>
+                    <a href="https://github.com/NotoriousArnav/EventHorizon" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        GitHub
+                    </a>
                     {% if user.is_authenticated %}
                     <a href="{% url 'user-events' %}" class="text-sm font-medium text-white uppercase tracking-wider hover:text-orange-500 transition-colors">
                         My Missions
@@ -176,11 +182,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                                 </span>
                                 {% elif reg.status == 'waitlisted' %}
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 uppercase tracking-widest">
-                                    Standby
+                                    Waitlisted
                                 </span>
                                 {% elif reg.status == 'cancelled' %}
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-900/30 text-red-400 border border-red-500/20 uppercase tracking-widest">
-                                    Cancelled
+                                    Not Approved
                                 </span>
                                 {% else %}
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600 uppercase tracking-widest">

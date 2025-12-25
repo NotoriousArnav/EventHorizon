@@ -92,6 +92,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     <a href="{% url 'event-list' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
                         Back to Missions
                     </a>
+                    <a href="https://brocode-tech.netlify.app" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        Community
+                    </a>
+                    <a href="https://github.com/NotoriousArnav/EventHorizon" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        GitHub
+                    </a>
                     {% if user.is_authenticated %}
                     <a href="{% url 'profile' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
                         Command
@@ -140,7 +146,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                             </div>
                             <div class="flex items-center gap-2">
                                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                {{ event.start_time|date:"H:i" }} - {{ event.end_time|date:"H:i" }} UTC
+                                {{ event.start_time|date:"H:i" }} - {{ event.end_time|date:"H:i" }} {{ event.start_time|date:"T" }}
                             </div>
                             <div class="flex items-center gap-2">
                                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -151,16 +157,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 </div>
 
                 <!-- Organizer Management Panel -->
-                {% if user == event.organizer and registrations %}
+                {% if user == event.organizer %}
                 <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/5 p-8">
                     <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3">
                         <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
                         Manage Crew Roster
                     </h3>
                     
-                    <div class="mb-4">
+                    <div class="mb-4 flex flex-wrap items-center gap-3">
                          <a href="{% url 'event-export' event.slug %}" class="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 uppercase tracking-widest">
                             Export Data (CSV)
+                        </a>
+                        <a href="{% url 'webhook-create' event.slug %}" class="inline-flex items-center px-4 py-2 border border-white/10 text-xs font-medium rounded-full shadow-sm text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 uppercase tracking-widest">
+                            Add Webhook
                         </a>
                     </div>
                     
@@ -176,6 +185,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/5">
+                                {% if registrations %}
                                 {% for reg in registrations %}
                                 <tr class="hover:bg-white/5 transition-colors">
                                     <td class="px-4 py-3">
@@ -193,11 +203,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                                     <td class="px-4 py-3 text-gray-400">{{ reg.registered_at|date:"M d, H:i" }}</td>
                                     <td class="px-4 py-3">
                                         {% if reg.status == 'registered' %}
-                                        <span class="px-2 py-0.5 rounded text-[10px] bg-green-900/30 text-green-400 border border-green-500/20 uppercase">Active</span>
+                                        <span class="px-2 py-0.5 rounded text-[10px] bg-green-900/30 text-green-400 border border-green-500/20 uppercase">Approved</span>
                                         {% elif reg.status == 'waitlisted' %}
-                                        <span class="px-2 py-0.5 rounded text-[10px] bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 uppercase">Waitlist</span>
+                                        <span class="px-2 py-0.5 rounded text-[10px] bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 uppercase">Waitlisted</span>
                                         {% else %}
-                                        <span class="px-2 py-0.5 rounded text-[10px] bg-red-900/30 text-red-400 border border-red-500/20 uppercase">Cancelled</span>
+                                        <span class="px-2 py-0.5 rounded text-[10px] bg-red-900/30 text-red-400 border border-red-500/20 uppercase">Not Approved</span>
                                         {% endif %}
                                     </td>
                                     <td class="px-4 py-3">
@@ -227,12 +237,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                                             <button type="submit" name="action" value="waitlist" class="text-xs text-yellow-400 hover:text-yellow-300 hover:underline">Waitlist</button>
                                             {% endif %}
                                             {% if reg.status != 'cancelled' %}
-                                            <button type="submit" name="action" value="cancel" class="text-xs text-red-400 hover:text-red-300 hover:underline">Kick</button>
+                                            <button type="submit" name="action" value="cancel" class="text-xs text-red-400 hover:text-red-300 hover:underline">Not Approve</button>
                                             {% endif %}
                                         </form>
                                     </td>
                                 </tr>
                                 {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                                        No crew registrations yet.
+                                    </td>
+                                </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
@@ -292,6 +309,44 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                             </div>
                         </div>
 
+                        {% if user == event.organizer %}
+                        <div class="border-t border-white/5 pt-5 mt-4">
+                            <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Registered Webhooks</h4>
+
+                            {% if webhooks %}
+                                <div class="space-y-2">
+                                    {% for webhook in webhooks %}
+                                        <div class="rounded-lg border border-white/10 bg-black/30 p-3">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <div class="text-xs text-gray-200 font-mono break-all">{{ webhook.url }}</div>
+                                                    <div class="mt-1 text-[10px] text-gray-500 uppercase tracking-widest">
+                                                        {% if webhook.is_active %}Active{% else %}Inactive{% endif %}
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex items-center gap-2 flex-shrink-0">
+                                                    <form method="post" action="{% url 'webhook-toggle' webhook.pk %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="text-[10px] px-2 py-1 rounded border border-white/10 text-gray-200 hover:bg-white/5 uppercase tracking-widest">
+                                                            {% if webhook.is_active %}Disable{% else %}Enable{% endif %}
+                                                        </button>
+                                                    </form>
+                                                    <a href="{% url 'webhook-update' webhook.pk %}" class="text-[10px] px-2 py-1 rounded border border-white/10 text-blue-300 hover:bg-white/5 uppercase tracking-widest">Edit</a>
+                                                    <a href="{% url 'webhook-delete' webhook.pk %}" class="text-[10px] px-2 py-1 rounded border border-red-500/30 text-red-300 hover:bg-red-900/20 uppercase tracking-widest">Delete</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-xs text-gray-500">
+                                    No webhooks configured.
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
                         {% if user.is_authenticated %}
                             {% if user == event.organizer %}
                                 <a href="{% url 'event-update' event.slug %}" class="block w-full text-center py-3 bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium rounded-lg transition-colors cursor-pointer">
@@ -305,11 +360,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                                         </span>
                                     {% elif user_registration.status == 'waitlisted' %}
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 uppercase tracking-wide">
-                                            Status: Standby (Waitlist)
+                                            Status: Waitlisted
                                         </span>
                                     {% elif user_registration.status == 'cancelled' %}
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-900/30 text-red-400 border border-red-500/20 uppercase tracking-wide">
-                                            Status: Cancelled
+                                            Status: Not Approved
                                         </span>
                                     {% endif %}
                                 </div>

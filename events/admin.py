@@ -15,7 +15,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from django.contrib import admin
-from .models import Event, Registration
+from .models import Event, Registration, Webhook
 
 
 @admin.register(Event)
@@ -37,3 +37,10 @@ class RegistrationAdmin(admin.ModelAdmin):
     list_display = ("event", "participant", "status", "registered_at")
     list_filter = ("status", "registered_at")
     search_fields = ("event__title", "participant__username", "participant__email")
+
+
+@admin.register(Webhook)
+class WebhookAdmin(admin.ModelAdmin):
+    list_display = ("event", "url", "is_active", "created_at")
+    list_filter = ("is_active", "created_at")
+    search_fields = ("event__title", "url")

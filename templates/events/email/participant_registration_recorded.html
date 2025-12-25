@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Recorded - Event Horizon</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a; color: #e5e5e5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #0a0a0a;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 700px; width: 100%; border-collapse: collapse; background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; box-shadow: 0 0 50px rgba(59, 130, 246, 0.18);">
+
+                    <tr>
+                        <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(90deg, rgba(59, 130, 246, 0.12) 0%, rgba(124, 58, 237, 0.10) 100%);">
+                            <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: linear-gradient(90deg, #ffffff 0%, #a0a0a0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                Event Horizon
+                            </h1>
+                            <p style="margin: 10px 0 0; font-size: 12px; color: #888; letter-spacing: 0.2em; text-transform: uppercase;">
+                                Crew Operations
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 40px;">
+                            <h2 style="margin: 0 0 10px; font-size: 22px; font-weight: 600; color: #ffffff; letter-spacing: 0.04em;">
+                                Registration Recorded
+                            </h2>
+
+                            <p style="margin: 0 0 18px; font-size: 15px; line-height: 1.7; color: #d0d0d0;">
+                                Your registration has been recorded, current status is <strong style="color: #60a5fa;">{{ status_label }}</strong>.
+                            </p>
+
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 20px;">
+                                <tr>
+                                    <td style="padding: 18px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; background-color: rgba(0, 0, 0, 0.35);">
+                                        <p style="margin: 0 0 8px; font-size: 13px; color: #888; letter-spacing: 0.12em; text-transform: uppercase;">Mission Details</p>
+                                        <p style="margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: #e5e5e5;"><strong style="color:#ffffff;">Mission:</strong> {{ event.title }}</p>
+                                        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #e5e5e5;"><strong style="color:#ffffff;">Current status:</strong> {{ status_label }}</p>
+                                        {% if event_url %}
+                                        <p style="margin: 12px 0 0; font-size: 13px; line-height: 1.6;">
+                                            <a href="{{ event_url }}" style="color: #7c3aed; text-decoration: none;">Open mission details</a>
+                                        </p>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #888;">
+                                You will receive another notification if your status changes.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 28px 40px; text-align: center; background-color: rgba(0, 0, 0, 0.3); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                            <p style="margin: 0; font-size: 12px; color: #666;">
+                                Event Horizon Command Center &bull; {{ current_site.domain }}
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

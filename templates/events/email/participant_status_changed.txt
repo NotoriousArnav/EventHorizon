@@ -1,0 +1,12 @@
+Event Horizon • Status Update ({{ current_site.domain }})
+
+Mission status updated
+
+Your registration has been recorded, current status is {{ new_status_label }}.
+
+Mission: {{ event.title }}
+Previous status: {{ old_status_label }}
+Current status: {{ new_status_label }}
+{% if event_url %}Mission details: {{ event_url }}{% endif %}
+
+If you have questions, contact the mission organizer.

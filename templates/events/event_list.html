@@ -67,23 +67,29 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     <a href="{% url 'event-list' %}" class="text-sm font-medium text-white uppercase tracking-wider hover:text-orange-500 transition-colors">
                         Missions
                     </a>
+                    <a href="https://brocode-tech.netlify.app" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        Community
+                    </a>
+                    <a href="https://github.com/NotoriousArnav/EventHorizon" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                        GitHub
+                    </a>
                     {% if user.is_authenticated %}
-                    <a href="{% url 'user-events' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
-                        My Missions
-                    </a>
-                    <a href="{% url 'profile' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
-                        Command
-                    </a>
-                     {% if user.is_staff %}
-                    <a href="{% url 'admin:index' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
-                        Admin
-                    </a>
-                    {% endif %}
-                    {% else %}
-                    <a href="{% url 'account_login' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
-                        Identify
-                    </a>
-                    {% endif %}
+                     <a href="{% url 'user-events' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                         My Missions
+                     </a>
+                     <a href="{% url 'profile' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                         Command
+                     </a>
+                      {% if user.is_staff %}
+                     <a href="{% url 'admin:index' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                         Admin
+                     </a>
+                     {% endif %}
+                     {% else %}
+                     <a href="{% url 'account_login' %}" class="text-sm font-medium text-gray-400 uppercase tracking-wider hover:text-white transition-colors">
+                         Identify
+                     </a>
+                     {% endif %}
                 </div>
             </div>
         </div>
@@ -181,7 +187,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                                 <svg class="flex-shrink-0 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                {{ event.start_time|date:"H:i" }} UTC
+                                {{ event.start_time|date:"H:i" }} {{ event.start_time|date:"T" }}
                             </div>
                             <div class="flex items-center text-sm text-gray-400">
                                 <svg class="flex-shrink-0 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

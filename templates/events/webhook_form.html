@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% if is_create %}Add Webhook{% else %}Edit Webhook{% endif %} | {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen relative overflow-x-hidden font-sans">
+    <div class="fixed inset-0 z-0">
+        <div class="absolute inset-0 bg-black"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+    </div>
+
+    <main class="relative z-10 max-w-3xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        <div class="bg-gray-900/40 backdrop-blur-md rounded-2xl border border-white/10 p-8">
+            <h1 class="text-2xl font-display font-bold text-white uppercase tracking-wide mb-2">
+                {% if is_create %}Add Webhook{% else %}Edit Webhook{% endif %}
+            </h1>
+            <p class="text-sm text-gray-400 mb-8">
+                Configure an endpoint to receive JSON notifications for this mission.
+            </p>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-xs font-bold text-blue-400 uppercase tracking-widest mb-1" for="id_url">Webhook URL</label>
+                    {{ form.url }}
+                    {% if form.url.errors %}<div class="text-sm text-red-400 mt-1">{{ form.url.errors }}</div>{% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-blue-400 uppercase tracking-widest mb-1" for="id_secret">Secret (optional)</label>
+                    {{ form.secret }}
+                    {% if form.secret.errors %}<div class="text-sm text-red-400 mt-1">{{ form.secret.errors }}</div>{% endif %}
+                </div>
+
+                <div class="flex items-center gap-2">
+                    {{ form.is_active }}
+                    <label class="text-sm text-gray-300" for="id_is_active">Active</label>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-full text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 uppercase tracking-widest">
+                        Save
+                    </button>
+                    <a href="{% url 'event-detail' event.slug %}" class="inline-flex items-center px-5 py-2.5 rounded-full text-xs font-medium text-gray-200 bg-gray-800 hover:bg-gray-700 border border-white/10 uppercase tracking-widest">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<style>
+    input[type="url"], input[type="text"], input[type="password"], textarea {
+        width: 100%;
+        background: rgba(0,0,0,0.45);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #fff;
+        outline: none;
+    }
+    input[type="url"]:focus, input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+        border-color: rgba(124, 58, 237, 0.9);
+    }
+</style>
+{% endblock %}

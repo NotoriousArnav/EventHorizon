@@ -1,0 +1,11 @@
+Event Horizon • Crew Operations ({{ current_site.domain }})
+
+Registration recorded
+
+Your registration has been recorded, current status is {{ status_label }}.
+
+Mission: {{ event.title }}
+Current status: {{ status_label }}
+{% if event_url %}Mission details: {{ event_url }}{% endif %}
+
+You will receive another notification if your status changes.

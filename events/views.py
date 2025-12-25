@@ -19,11 +19,11 @@ import csv
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -33,8 +33,62 @@ from django.views.generic import (
     View,
 )
 
-from .models import Event, Registration
+from .models import Event, Registration, Webhook
+from .notifications import (
+    send_organizer_registration_email,
+    send_participant_registration_recorded_email,
+    send_participant_status_changed_email,
+)
 from .utils import extract_registration_schema
+from .webhook_utils import trigger_webhook_async
+
+
+def _trigger_registration_created_webhooks(
+    *, event, registration, participant, answers
+):
+    webhooks = event.webhooks.filter(is_active=True)
+    if not webhooks.exists():
+        return
+
+    payload = {
+        "event": "registration.created",
+        "mission_id": event.slug,
+        "mission_title": event.title,
+        "participant": {
+            "username": participant.username,
+            "email": getattr(participant, "email", ""),
+        },
+        "status": registration.status,
+        "registered_at": registration.registered_at,
+        "answers": answers,
+    }
+
+    for webhook in webhooks:
+        trigger_webhook_async(webhook.url, payload)
+
+
+def _trigger_registration_status_changed_webhooks(
+    *, event, registration, participant, old_status, new_status
+):
+    webhooks = event.webhooks.filter(is_active=True)
+    if not webhooks.exists():
+        return
+
+    payload = {
+        "event": "registration.status_changed",
+        "mission_id": event.slug,
+        "mission_title": event.title,
+        "participant": {
+            "username": participant.username,
+            "email": getattr(participant, "email", ""),
+        },
+        "old_status": old_status,
+        "new_status": new_status,
+        "updated_at": timezone.now(),
+    }
+
+    for webhook in webhooks:
+        trigger_webhook_async(webhook.url, payload)
 
 
 class EventListView(ListView):
@@ -61,7 +115,6 @@ class EventListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Pass the current search params back to the template
         context["current_query"] = self.request.GET.get("q", "")
         context["current_location"] = self.request.GET.get("location", "")
         return context
@@ -77,10 +130,6 @@ class UserEventListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Fetch events the user is attending (registered for)
-        # We want the Registration objects to show status, or just the events?
-        # The prompt says: "Mission Assignments": Events the user is attending. Show their current status.
-        # So we should probably fetch the Registration objects for this user.
         context["attended_registrations"] = (
             Registration.objects.filter(participant=self.request.user)
             .select_related("event")
@@ -98,8 +147,9 @@ class EventDetailView(DetailView):
         event = self.get_object()
         user = self.request.user
 
+        context["webhooks"] = event.webhooks.order_by("-created_at")
+
         if user.is_authenticated:
-            # Get user's specific registration to check status
             user_registration = Registration.objects.filter(
                 event=event, participant=user
             ).first()
@@ -107,11 +157,12 @@ class EventDetailView(DetailView):
             context["is_registered"] = user_registration is not None
             context["user_registration"] = user_registration
 
-            # If organizer, get all registrations
             if user == event.organizer:
-                context["registrations"] = Registration.objects.filter(
-                    event=event
-                ).select_related("participant", "participant__profile")
+                context["registrations"] = (
+                    Registration.objects.filter(event=event)
+                    .select_related("participant", "participant__profile")
+                    .order_by("-registered_at")
+                )
         else:
             context["is_registered"] = False
 
@@ -124,19 +175,11 @@ class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = "events/event_form.html"
     success_message = "Event '%(title)s' was created successfully"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Pass an empty schema for new events if we want to default it
-        # context["schema_json"] = "[]"
-        return context
-
     def form_valid(self, form):
         form.instance.organizer = self.request.user
-
         form.instance.registration_schema = extract_registration_schema(
             self.request.POST
         )
-
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -153,18 +196,14 @@ class EventUpdateView(
 
     def form_valid(self, form):
         form.instance.organizer = self.request.user
-
         form.instance.registration_schema = extract_registration_schema(
             self.request.POST
         )
-
         return super().form_valid(form)
 
     def test_func(self):
         event = self.get_object()
-        if self.request.user == event.organizer:
-            return True
-        return False
+        return self.request.user == event.organizer
 
     def get_success_url(self):
         return reverse_lazy("event-detail", kwargs={"slug": self.object.slug})
@@ -180,21 +219,17 @@ class EventDeleteView(
 
     def test_func(self):
         event = self.get_object()
-        if self.request.user == event.organizer:
-            return True
-        return False
+        return self.request.user == event.organizer
 
 
 class EventRegistrationView(LoginRequiredMixin, View):
     def post(self, request, slug):
         event = get_object_or_404(Event, slug=slug)
 
-        # Check if already registered
         if Registration.objects.filter(event=event, participant=request.user).exists():
             messages.warning(request, "You are already registered for this mission.")
             return redirect("event-detail", slug=slug)
 
-        # Capture Answers if schema exists
         answers = {}
         if event.registration_schema:
             for question in event.registration_schema:
@@ -204,29 +239,37 @@ class EventRegistrationView(LoginRequiredMixin, View):
                 else:
                     answers[question["id"]] = request.POST.get(key, "")
 
-        # Check capacity
         current_registrations = event.registrations.filter(status="registered").count()
-        status = "registered"
 
         if current_registrations >= event.capacity:
-            status = "waitlisted"
+            status_value = "waitlisted"
             msg_type = messages.INFO
             msg_text = "Mission capacity reached. You have been placed on the standby (wait) list."
         else:
-            status = "registered"
+            status_value = "registered"
             msg_type = messages.SUCCESS
             msg_text = f"Successfully registered for mission: {event.title}"
 
-        # Create registration
-        Registration.objects.create(
-            event=event, participant=request.user, status=status, answers=answers
+        registration = Registration.objects.create(
+            event=event, participant=request.user, status=status_value, answers=answers
         )
 
-        # Flash message
         if msg_type == messages.INFO:
             messages.info(request, msg_text)
         else:
             messages.success(request, msg_text)
+
+        send_organizer_registration_email(registration=registration, request=request)
+        send_participant_registration_recorded_email(
+            registration=registration, request=request
+        )
+
+        _trigger_registration_created_webhooks(
+            event=event,
+            registration=registration,
+            participant=request.user,
+            answers=answers,
+        )
 
         return redirect("event-detail", slug=slug)
 
@@ -247,13 +290,6 @@ class EventUnregistrationView(LoginRequiredMixin, View):
         return redirect("event-detail", slug=slug)
 
 
-from django.core.mail import send_mail
-
-
-import csv
-from django.http import HttpResponse
-
-
 class EventExportView(LoginRequiredMixin, UserPassesTestMixin, View):
     def get(self, request, slug):
         event = get_object_or_404(Event, slug=slug)
@@ -265,10 +301,8 @@ class EventExportView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         writer = csv.writer(response)
 
-        # Header row
         headers = ["Username", "Email", "Status", "Registered At"]
 
-        # Add dynamic headers from schema
         question_ids = []
         if event.registration_schema:
             for question in event.registration_schema:
@@ -277,7 +311,6 @@ class EventExportView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         writer.writerow(headers)
 
-        # Data rows
         registrations = event.registrations.select_related("participant").all()
         for reg in registrations:
             row = [
@@ -287,10 +320,8 @@ class EventExportView(LoginRequiredMixin, UserPassesTestMixin, View):
                 reg.registered_at.strftime("%Y-%m-%d %H:%M:%S"),
             ]
 
-            # Add dynamic answers
             if event.registration_schema:
                 for q_id in question_ids:
-                    # Retrieve answer safely, handle booleans for checkboxes
                     answer = reg.answers.get(q_id, "")
                     if isinstance(answer, bool):
                         answer = "Yes" if answer else "No"
@@ -310,32 +341,23 @@ class ManageRegistrationView(LoginRequiredMixin, UserPassesTestMixin, View):
         registration = get_object_or_404(Registration, id=registration_id)
         event = registration.event
 
-        # Verify action
         action = request.POST.get("action")
+        old_status = registration.status
 
         if action == "approve":
-            # Check capacity before approving from waitlist/cancelled
             current_registrations = event.registrations.filter(
                 status="registered"
             ).count()
             if current_registrations >= event.capacity:
                 messages.error(request, "Cannot approve: Mission is at full capacity.")
-            else:
-                registration.status = "registered"
-                registration.save()
-                messages.success(
-                    request,
-                    f"Approved {registration.participant.username} for the mission.",
-                )
+                return redirect("event-detail", slug=event.slug)
 
-                # Send email notification
-                send_mail(
-                    subject=f"Mission Status Update: APPROVED - {event.title}",
-                    message=f"Commander {registration.participant.username},\n\nYour application for mission '{event.title}' has been APPROVED by the mission control (organizer).\n\nReport to the briefing room immediately.\n\n- Event Horizon Command",
-                    from_email="command@eventhorizon.local",
-                    recipient_list=[registration.participant.email],
-                    fail_silently=True,
-                )
+            registration.status = "registered"
+            registration.save()
+            messages.success(
+                request,
+                f"Approved {registration.participant.username} for the mission.",
+            )
 
         elif action == "waitlist":
             registration.status = "waitlisted"
@@ -344,30 +366,24 @@ class ManageRegistrationView(LoginRequiredMixin, UserPassesTestMixin, View):
                 request, f"Moved {registration.participant.username} to standby list."
             )
 
-            # Send email notification
-            send_mail(
-                subject=f"Mission Status Update: STANDBY - {event.title}",
-                message=f"Commander {registration.participant.username},\n\nYou have been placed on the STANDBY list (waitlist) for mission '{event.title}'.\n\nAwait further instructions. We will notify you if a slot becomes available.\n\n- Event Horizon Command",
-                from_email="command@eventhorizon.local",
-                recipient_list=[registration.participant.email],
-                fail_silently=True,
-            )
-
         elif action == "cancel":
             registration.status = "cancelled"
             registration.save()
             messages.warning(
                 request,
-                f"Cancelled registration for {registration.participant.username}.",
+                f"Updated status for {registration.participant.username} to Not Approved.",
             )
 
-            # Send email notification
-            send_mail(
-                subject=f"Mission Status Update: CANCELLED - {event.title}",
-                message=f"Commander {registration.participant.username},\n\nYour registration for mission '{event.title}' has been CANCELLED by mission control.\n\nIf you believe this is an error, contact the mission organizer directly.\n\n- Event Horizon Command",
-                from_email="command@eventhorizon.local",
-                recipient_list=[registration.participant.email],
-                fail_silently=True,
+        if registration.status != old_status:
+            send_participant_status_changed_email(
+                registration=registration, old_status=old_status, request=request
+            )
+            _trigger_registration_status_changed_webhooks(
+                event=event,
+                registration=registration,
+                participant=registration.participant,
+                old_status=old_status,
+                new_status=registration.status,
             )
 
         return redirect("event-detail", slug=event.slug)
@@ -377,3 +393,72 @@ class ManageRegistrationView(LoginRequiredMixin, UserPassesTestMixin, View):
             Registration, id=self.kwargs["registration_id"]
         )
         return self.request.user == registration.event.organizer
+
+
+class WebhookCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Webhook
+    fields = ["url", "secret", "is_active"]
+    template_name = "events/webhook_form.html"
+
+    def get_event(self):
+        return get_object_or_404(Event, slug=self.kwargs["slug"])
+
+    def test_func(self):
+        event = self.get_event()
+        return self.request.user == event.organizer
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["event"] = self.get_event()
+        context["is_create"] = True
+        return context
+
+    def form_valid(self, form):
+        form.instance.event = self.get_event()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("event-detail", kwargs={"slug": self.get_event().slug})
+
+
+class WebhookUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Webhook
+    fields = ["url", "secret", "is_active"]
+    template_name = "events/webhook_form.html"
+
+    def test_func(self):
+        webhook = self.get_object()
+        return self.request.user == webhook.event.organizer
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["event"] = self.object.event
+        context["is_create"] = False
+        return context
+
+    def get_success_url(self):
+        return reverse("event-detail", kwargs={"slug": self.object.event.slug})
+
+
+class WebhookDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Webhook
+    template_name = "events/webhook_confirm_delete.html"
+
+    def test_func(self):
+        webhook = self.get_object()
+        return self.request.user == webhook.event.organizer
+
+    def get_success_url(self):
+        return reverse("event-detail", kwargs={"slug": self.object.event.slug})
+
+
+class WebhookToggleActiveView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def post(self, request, pk):
+        webhook = get_object_or_404(Webhook, pk=pk)
+        webhook.is_active = not webhook.is_active
+        webhook.save(update_fields=["is_active"])
+        return redirect("event-detail", slug=webhook.event.slug)
+
+    def test_func(self):
+        webhook = get_object_or_404(Webhook, pk=self.kwargs["pk"])
+        return self.request.user == webhook.event.organizer
