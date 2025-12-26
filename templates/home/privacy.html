@@ -1,0 +1,52 @@
+{% extends "plain_base.html" %}
+
+{% block title %}Privacy Policy | Event Horizon{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-semibold mb-3">Privacy Policy</h1>
+<p class="text-sm text-gray-600 mb-8">Last updated: {{ "now"|date:"F j, Y" }}</p>
+
+<div class="prose max-w-none">
+  <p>
+    This Privacy Policy explains how Event Horizon collects, uses, and protects information when you use the Service.
+  </p>
+
+  <h2>1. Information we collect</h2>
+  <ul>
+    <li><strong>Account information:</strong> username and email address.</li>
+    <li><strong>Profile information:</strong> optional fields you choose to provide (such as avatar or social links).</li>
+    <li><strong>Event and registration data:</strong> events you create and registrations you submit (including answers to registration questions).</li>
+    <li><strong>Technical data:</strong> basic logs needed to operate and secure the Service (for example, error traces).</li>
+  </ul>
+
+  <h2>2. How we use information</h2>
+  <ul>
+    <li>Provide and improve the Service.</li>
+    <li>Send operational emails (verification, registration updates, API key expiry notices).</li>
+    <li>Prevent abuse, protect accounts, and enforce these policies.</li>
+  </ul>
+
+  <h2>3. Sharing</h2>
+  <p>
+    We do not sell your personal information. We may share information with service providers (for example email delivery)
+    only as needed to operate the Service.
+  </p>
+
+  <h2>4. Data retention</h2>
+  <p>
+    We keep data as long as needed to provide the Service and meet legal or security requirements.
+    You can delete API keys at any time from your dashboard.
+  </p>
+
+  <h2>5. Security</h2>
+  <p>
+    We use reasonable measures to protect the Service. However, no online service can be guaranteed 100% secure.
+    Keep your tokens and passwords safe.
+  </p>
+
+  <h2>6. Contact</h2>
+  <p>
+    For privacy questions, contact us through the project’s official channels.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Event Horizon{% endblock %}</title>
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <header class="mb-8">
+      <a href="/" class="text-sm text-gray-600 hover:text-gray-900">← Back to home</a>
+    </header>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-12 pt-6 border-t text-sm text-gray-500">
+      <div class="flex flex-wrap gap-4">
+        <a href="/terms/" class="hover:text-gray-900">Terms</a>
+        <a href="/privacy/" class="hover:text-gray-900">Privacy</a>
+        <a href="/about/" class="hover:text-gray-900">About</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

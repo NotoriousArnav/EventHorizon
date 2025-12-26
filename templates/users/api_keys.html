@@ -128,13 +128,50 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 <h1 class="text-4xl font-display font-bold text-white mb-2">API Keys</h1>
                 <p class="text-gray-400">Manage your API keys for programmatic access to Event Horizon</p>
             </div>
-            <form method="POST" action="{% url 'api-key-create' %}">
-                {% csrf_token %}
-                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-lg shadow-lg shadow-orange-900/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Generate New Key
-                </button>
-            </form>
+            <button type="button" onclick="openKeyDialog()" class="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-lg shadow-lg shadow-orange-900/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Generate New Key
+            </button>
+        </div>
+
+        <!-- Create API Key Dialog -->
+        <div id="key-dialog" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/70" onclick="closeKeyDialog()"></div>
+            <div class="relative w-full max-w-lg rounded-2xl border border-white/10 bg-gray-950/95 backdrop-blur-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-display font-bold text-white">Create API Key</h2>
+                    <button type="button" onclick="closeKeyDialog()" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <form method="POST" action="{% url 'api-key-create' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Name (optional)</label>
+                        <input name="name" type="text" placeholder="e.g. My Script" class="w-full rounded-lg bg-black/40 border border-white/10 px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Expires in</label>
+                        <select name="duration" class="w-full rounded-lg bg-black/40 border border-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                            <option value="1h">1 hour</option>
+                            <option value="12h" selected>12 hours (recommended)</option>
+                            <option value="24h">24 hours</option>
+                            <option value="7d">7 days</option>
+                            <option value="30d">30 days</option>
+                            <option value="90d">90 days</option>
+                            <option value="never">Never</option>
+                        </select>
+                        <p class="mt-2 text-xs text-gray-500">If your key expires, you'll get an email the next time it's encountered.</p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" onclick="closeKeyDialog()" class="px-4 py-2 rounded-lg border border-white/10 text-gray-200 hover:bg-white/5 transition-colors">Cancel</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition-colors">Create key</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- API Keys List -->
@@ -177,13 +214,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
             <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
             <h3 class="text-xl font-display font-bold text-white mb-2">No API Keys Yet</h3>
             <p class="text-gray-400 mb-6">Generate your first API key to access Event Horizon programmatically</p>
-            <form method="POST" action="{% url 'api-key-create' %}" class="inline-block">
-                {% csrf_token %}
-                <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-lg shadow-lg shadow-orange-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Generate Your First API Key
-                </button>
-            </form>
+            <button type="button" onclick="openKeyDialog()" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-medium rounded-lg shadow-lg shadow-orange-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Generate Your First API Key
+            </button>
         </div>
         {% endif %}
     </main>
@@ -196,6 +230,20 @@ function copyToClipboard(text) {
     }, function(err) {
         console.error('Could not copy text: ', err);
     });
+}
+
+function openKeyDialog() {
+    const el = document.getElementById('key-dialog');
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.classList.add('flex');
+}
+
+function closeKeyDialog() {
+    const el = document.getElementById('key-dialog');
+    if (!el) return;
+    el.classList.add('hidden');
+    el.classList.remove('flex');
 }
 </script>
 {% endblock %}

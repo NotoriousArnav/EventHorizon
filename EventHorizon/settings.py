@@ -28,6 +28,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 import dj_database_url
@@ -155,6 +156,35 @@ REST_FRAMEWORK = {
         "knox.auth.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
+
+# Caching configuration
+# - Defaults to in-memory cache (safe everywhere)
+# - If REDIS_URL is provided, uses Redis via django-redis
+REDIS_URL = os.getenv("REDIS_URL")
+
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "eventhorizon-locmem",
+        }
+    }
+
+# Knox token settings
+# Default: 12 hours (user can override per token)
+REST_KNOX = {
+    "TOKEN_TTL": timedelta(hours=12),
 }
 
 MIDDLEWARE = [

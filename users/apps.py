@@ -19,3 +19,6 @@ from django.apps import AppConfig
 
 class UsersConfig(AppConfig):
     name = "users"
+
+    def ready(self):  # type: ignore[override]
+        import users.signals  # type: ignore[import-not-found]  # noqa: F401

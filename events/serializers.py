@@ -29,6 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     organizer = UserSerializer(read_only=True)
+    registration_schema = serializers.JSONField(read_only=True)
     is_registered = serializers.SerializerMethodField()
 
     class Meta:
@@ -42,6 +43,8 @@ class EventSerializer(serializers.ModelSerializer):
             "location",
             "capacity",
             "organizer",
+            "registration_schema",
+            "registrations",
             "created_at",
             "updated_at",
             "is_registered",
@@ -61,6 +64,7 @@ class EventSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     event_title = serializers.ReadOnlyField(source="event.title")
     participant_info = UserSerializer(source="participant", read_only=True)
+    answers = serializers.JSONField(read_only=True)
 
     class Meta:
         model = Registration
@@ -71,5 +75,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             "participant_info",
             "status",
             "registered_at",
+            "answers",
         ]
         read_only_fields = ["participant", "status", "registered_at", "event"]

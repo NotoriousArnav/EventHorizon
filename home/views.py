@@ -15,9 +15,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from django.views.generic import TemplateView
+from django.views.generic import TemplateView as PlainTemplateView
 from django.http import JsonResponse
 from django.db import connection
+from django.core.cache import cache
+from django.db.models.manager import Manager
 from events.models import Event
+from typing import cast, Any
 from django.utils import timezone
 import datetime
 
@@ -25,11 +29,50 @@ import datetime
 class HomeView(TemplateView):
     template_name = "home.html"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):  # type: ignore[override]
         context = super().get_context_data(**kwargs)
-        context["upcoming_events"] = Event.objects.filter(
-            start_time__gte=timezone.now()
-        ).order_by("start_time")[:3]
+
+        cache_key = "home:upcoming_events:v1"
+        upcoming_events: Any = cache.get(cache_key)
+        if upcoming_events is None:
+            event_manager = cast(Manager, getattr(Event, "objects"))
+            upcoming_events = list(
+                event_manager.filter(start_time__gte=timezone.now())
+                .order_by("start_time")[:3]
+                .only("id", "slug", "title", "start_time", "location")
+            )
+            cache.set(cache_key, upcoming_events, timeout=60)
+
+        context["upcoming_events"] = upcoming_events
+        return context
+
+
+class TermsView(PlainTemplateView):
+    template_name = "home/terms.html"
+
+
+class PrivacyView(PlainTemplateView):
+    template_name = "home/privacy.html"
+
+
+class AboutView(PlainTemplateView):
+    template_name = "home/about.html"
+
+    def get_context_data(self, **kwargs):  # type: ignore[override]
+        context = super().get_context_data(**kwargs)
+
+        cache_key = "home:upcoming_events:v1"
+        upcoming_events: Any = cache.get(cache_key)
+        if upcoming_events is None:
+            event_manager = cast(Manager, getattr(Event, "objects"))
+            upcoming_events = list(
+                event_manager.filter(start_time__gte=timezone.now())
+                .order_by("start_time")[:3]
+                .only("id", "slug", "title", "start_time", "location")
+            )
+            cache.set(cache_key, upcoming_events, timeout=60)
+
+        context["upcoming_events"] = upcoming_events
         return context
 
 
@@ -44,7 +87,8 @@ def health_check(request):
             cursor.execute("SELECT 1")
 
         # Check if we can query the database
-        event_count = Event.objects.count()
+        event_manager = cast(Manager, getattr(Event, "objects"))
+        event_count = event_manager.count()
 
         return JsonResponse(
             {

@@ -23,6 +23,7 @@ from .forms import UserUpdateForm, ProfileUpdateForm, SocialLinkFormSet
 from oauth2_provider.models import Application
 from knox.models import AuthToken
 from django.utils import timezone
+from datetime import timedelta
 
 
 @login_required
@@ -202,15 +203,30 @@ def api_keys(request):
 @login_required
 def api_key_create(request):
     """Create a new API key"""
+
+    def _parse_duration(value: str | None) -> timedelta | None:
+        if not value:
+            return timedelta(hours=12)
+
+        value = value.strip().lower()
+        if value in {"never", "none"}:
+            return None
+
+        if value.endswith("h"):
+            return timedelta(hours=int(value[:-1]))
+        if value.endswith("d"):
+            return timedelta(days=int(value[:-1]))
+
+        return timedelta(hours=12)
+
     if request.method == "POST":
         name = request.POST.get(
             "name", f"API Key {timezone.now().strftime('%Y-%m-%d %H:%M')}"
         )
+        duration = _parse_duration(request.POST.get("duration"))
 
-        # Create Knox token
-        instance, token = AuthToken.objects.create(user=request.user)
+        instance, token = AuthToken.objects.create(user=request.user, expiry=duration)
 
-        # Store the token in session to display once
         request.session["new_api_key"] = token
         request.session["new_api_key_name"] = name
 

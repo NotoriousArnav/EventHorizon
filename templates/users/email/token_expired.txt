@@ -1,0 +1,12 @@
+Your Event Horizon API key has expired.
+
+Hi {{ user.username }},
+
+One of your API keys has expired and can no longer be used.
+
+You can generate a new API key here:
+{{ current_site.domain }}/accounts/api-keys/
+
+If this wasn't you, we recommend deleting old keys and creating a new one.
+
+— Event Horizon

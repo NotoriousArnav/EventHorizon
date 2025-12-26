@@ -1,0 +1,66 @@
+{% extends "plain_base.html" %}
+
+{% block title %}Terms of Service | Event Horizon{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-semibold mb-3">Terms of Service</h1>
+<p class="text-sm text-gray-600 mb-8">Last updated: {{ "now"|date:"F j, Y" }}</p>
+
+<div class="prose max-w-none">
+  <p>
+    These Terms of Service (“Terms”) govern your access to and use of Event Horizon (the “Service”).
+    By using the Service, you agree to these Terms.
+  </p>
+
+  <h2>1. Who can use the Service</h2>
+  <p>You must be at least 13 years old (or the minimum age required in your country) to use the Service.</p>
+
+  <h2>2. Accounts</h2>
+  <p>
+    You are responsible for your account and any activity under it. Keep your login credentials and API keys private.
+    If you believe your account has been compromised, notify us and rotate (delete and recreate) your API keys.
+  </p>
+
+  <h2>3. Acceptable use</h2>
+  <ul>
+    <li>Do not abuse or disrupt the Service (including automated scraping, denial-of-service, or attempting to bypass security).</li>
+    <li>Do not upload harmful content (malware) or attempt unauthorized access.</li>
+    <li>Do not use the Service to violate applicable laws or the rights of others.</li>
+  </ul>
+
+  <h2>4. Events and content</h2>
+  <p>
+    Event organizers are responsible for the accuracy of event information they publish.
+    We may remove content that violates these Terms or applicable law.
+  </p>
+
+  <h2>5. API and developer access</h2>
+  <p>
+    The Service provides API access (OAuth2 and API keys). You are responsible for securely storing tokens,
+    respecting rate limits, and using the API in compliance with these Terms.
+  </p>
+
+  <h2>6. Availability</h2>
+  <p>
+    We try to keep the Service available, but it may be interrupted for maintenance or due to factors outside our control.
+    The Service is provided “as is” without warranties.
+  </p>
+
+  <h2>7. Termination</h2>
+  <p>
+    You can stop using the Service at any time. We may suspend or terminate access if you violate these Terms,
+    or if we need to protect the Service or other users.
+  </p>
+
+  <h2>8. Changes</h2>
+  <p>
+    We may update these Terms from time to time. If changes are material, we’ll provide a reasonable notice.
+    Continued use of the Service means you accept the updated Terms.
+  </p>
+
+  <h2>9. Contact</h2>
+  <p>
+    For questions about these Terms, contact us through the project’s official channels.
+  </p>
+</div>
+{% endblock %}
