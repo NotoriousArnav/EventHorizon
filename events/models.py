@@ -45,6 +45,11 @@ class Event(models.Model):
         ]
 
     def save(self, *args, **kwargs):
+        """
+        Ensure the model has a unique slug and save it to the database.
+        
+        If the instance's slug is empty, generate one from the title (fall back to a UUID hex). Attempt to save up to five times; on an IntegrityError caused by the slug, append a short UUID suffix and retry. Re-raise the error if it is not slug-related or if all attempts fail.
+        """
         if not self.slug:
             base_slug = slugify(self.title) or uuid4().hex
             self.slug = base_slug
@@ -90,6 +95,12 @@ class Registration(models.Model):
         ]
 
     def __str__(self):
+        """
+        Human-readable representation of the registration combining the participant and event title.
+        
+        Returns:
+            str: A string in the format "<participant> - <event title>".
+        """
         return f"{self.participant} - {self.event.title}"
 
 

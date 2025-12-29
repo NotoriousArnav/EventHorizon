@@ -99,6 +99,16 @@ class EventListView(ListView):
     paginate_by = 6
 
     def get_queryset(self):
+        """
+        Return the Event queryset filtered by optional `q` (title or description) and `location` GET parameters, with `organizer` and `organizer.profile` preloaded.
+        
+        Filters:
+        - `q`: case-insensitive substring match against `title` or `description`.
+        - `location`: case-insensitive substring match against `location`.
+        
+        Returns:
+            QuerySet: Event objects matching the provided filters with `organizer` and `organizer.profile` selected for eager loading.
+        """
         queryset = (
             super().get_queryset().select_related("organizer", "organizer__profile")
         )
@@ -128,6 +138,12 @@ class UserEventListView(LoginRequiredMixin, ListView):
     context_object_name = "hosted_events"
 
     def get_queryset(self):
+        """
+        Retrieve the current user's events with organizer and organizer profile eager-loaded, ordered by start_time.
+        
+        Returns:
+            QuerySet[Event]: Events organized by the request's user with `organizer` and `organizer__profile` selected and ordered by `start_time`.
+        """
         return (
             Event.objects.filter(organizer=self.request.user)
             .select_related("organizer", "organizer__profile")
@@ -135,6 +151,14 @@ class UserEventListView(LoginRequiredMixin, ListView):
         )
 
     def get_context_data(self, **kwargs):
+        """
+        Add the current user's registrations to the template context under the key "attended_registrations".
+        
+        The value is a queryset of Registration objects for the requesting user, eager-loading related event and organizer (including organizer profile) and ordered by the related event's start_time.
+        
+        Returns:
+            context (dict): Template context including "attended_registrations".
+        """
         context = super().get_context_data(**kwargs)
         context["attended_registrations"] = (
             Registration.objects.filter(participant=self.request.user)

@@ -45,9 +45,12 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Optimized queryset with:
-        - select_related for organizer (avoids N+1 on organizer access)
-        - Exists annotation for is_registered (avoids N+1 per-event query)
+        Return the Event queryset for this view, optimized for organizer access and optionally annotated with the requesting user's registration status.
+        
+        The queryset is ordered by `start_time` descending and includes related organizer information for efficient access. If the request user is authenticated, each Event will be annotated with `is_registered_annotation` (a boolean indicating whether that user has a Registration for the event).
+        
+        Returns:
+            QuerySet: Event queryset ordered by newest `start_time` first, with related organizer selected and `is_registered_annotation` added for authenticated users.
         """
         queryset = Event.objects.select_related("organizer").order_by("-start_time")
 
@@ -67,6 +70,12 @@ class EventViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
+        """
+        Save a new Event instance and assign the current user as its organizer.
+        
+        Parameters:
+            serializer: Serializer instance with validated event data; `save` is called with `organizer` set to the requesting user.
+        """
         serializer.save(organizer=self.request.user)
 
     @action(
@@ -152,7 +161,12 @@ class EventViewSet(viewsets.ModelViewSet):
         detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated]
     )
     def registrations(self, request, pk=None):
-        """Get all registrations for an event (organizer only)."""
+        """
+        Retrieve registrations for a specific event; access is limited to the event's organizer.
+        
+        Returns:
+            registrations (list): Serialized registration objects for the event, ordered by most recent.
+        """
 
         event = self.get_object()
 
@@ -178,7 +192,16 @@ class RegistrationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Optimized queryset with select_related for event and participant."""
+        """
+        Return the queryset of Registration objects belonging to the requesting user.
+        
+        The queryset is ordered by `registered_at` descending and includes the related
+        `event` and `participant` via `select_related` for query efficiency.
+        
+        Returns:
+            QuerySet[Registration]: Registrations for the authenticated request user,
+            ordered newest first, with `event` and `participant` selected.
+        """
         return (
             Registration.objects.filter(participant=self.request.user)
             .select_related("event", "participant")
