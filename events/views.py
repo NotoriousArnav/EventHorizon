@@ -99,7 +99,9 @@ class EventListView(ListView):
     paginate_by = 6
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = (
+            super().get_queryset().select_related("organizer", "organizer__profile")
+        )
         query = self.request.GET.get("q")
         location = self.request.GET.get("location")
 
@@ -126,13 +128,17 @@ class UserEventListView(LoginRequiredMixin, ListView):
     context_object_name = "hosted_events"
 
     def get_queryset(self):
-        return Event.objects.filter(organizer=self.request.user).order_by("start_time")
+        return (
+            Event.objects.filter(organizer=self.request.user)
+            .select_related("organizer", "organizer__profile")
+            .order_by("start_time")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["attended_registrations"] = (
             Registration.objects.filter(participant=self.request.user)
-            .select_related("event")
+            .select_related("event", "event__organizer", "event__organizer__profile")
             .order_by("event__start_time")
         )
         return context

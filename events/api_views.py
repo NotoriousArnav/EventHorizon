@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+from django.db.models import Exists, OuterRef
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -39,9 +40,31 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
 class EventViewSet(viewsets.ModelViewSet):
     """API endpoint that allows events to be viewed or edited."""
 
-    queryset = Event.objects.all().order_by("-start_time")
     serializer_class = EventSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOrganizerOrReadOnly]
+
+    def get_queryset(self):
+        """
+        Optimized queryset with:
+        - select_related for organizer (avoids N+1 on organizer access)
+        - Exists annotation for is_registered (avoids N+1 per-event query)
+        """
+        queryset = Event.objects.select_related("organizer").order_by("-start_time")
+
+        # Annotate with is_registered for authenticated users
+        # This uses a single subquery instead of N queries in the serializer
+        user = self.request.user
+        if user.is_authenticated:
+            queryset = queryset.annotate(
+                is_registered_annotation=Exists(
+                    Registration.objects.filter(
+                        event=OuterRef("pk"),
+                        participant=user,
+                    )
+                )
+            )
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(organizer=self.request.user)
@@ -139,8 +162,10 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        registrations = Registration.objects.filter(event=event).order_by(
-            "-registered_at"
+        registrations = (
+            Registration.objects.filter(event=event)
+            .select_related("participant")
+            .order_by("-registered_at")
         )
         serializer = RegistrationSerializer(registrations, many=True)
         return Response(serializer.data)
@@ -153,6 +178,9 @@ class RegistrationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Registration.objects.filter(participant=self.request.user).order_by(
-            "-registered_at"
+        """Optimized queryset with select_related for event and participant."""
+        return (
+            Registration.objects.filter(participant=self.request.user)
+            .select_related("event", "participant")
+            .order_by("-registered_at")
         )

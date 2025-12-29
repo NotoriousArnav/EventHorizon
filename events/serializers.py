@@ -53,6 +53,18 @@ class EventSerializer(serializers.ModelSerializer):
         read_only_fields = ["organizer", "created_at", "updated_at", "slug"]
 
     def get_is_registered(self, obj):
+        """
+        Check if the current user is registered for this event.
+
+        Optimized to use the pre-annotated value from the queryset when available,
+        falling back to a database query for detail views or when annotation is missing.
+        """
+        # Use annotated value if available (from list views with Exists() annotation)
+        # This avoids N+1 queries when listing multiple events
+        if hasattr(obj, "is_registered_annotation"):
+            return obj.is_registered_annotation
+
+        # Fallback for detail views or when annotation is not present
         request = self.context.get("request")
         if request and request.user.is_authenticated:
             return Registration.objects.filter(

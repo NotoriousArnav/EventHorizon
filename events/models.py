@@ -37,6 +37,13 @@ class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["start_time"]),
+            models.Index(fields=["organizer"]),
+            models.Index(fields=["-created_at"]),
+        ]
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title) or uuid4().hex
@@ -76,6 +83,11 @@ class Registration(models.Model):
 
     class Meta:
         unique_together = ("event", "participant")
+        indexes = [
+            models.Index(fields=["event", "status"]),
+            models.Index(fields=["participant"]),
+            models.Index(fields=["-registered_at"]),
+        ]
 
     def __str__(self):
         return f"{self.participant} - {self.event.title}"
