@@ -54,10 +54,12 @@ class EventSerializer(serializers.ModelSerializer):
 
     def get_is_registered(self, obj):
         """
-        Check if the current user is registered for this event.
-
-        Optimized to use the pre-annotated value from the queryset when available,
-        falling back to a database query for detail views or when annotation is missing.
+        Determine whether the current request user is registered for the given event.
+        
+        This prefers a pre-annotated `is_registered_annotation` on the event object when present (to avoid extra queries in list views); otherwise it checks the database for a registration for the authenticated request user.
+        
+        Returns:
+            `true` if the current request user is registered for the event, `false` otherwise.
         """
         # Use annotated value if available (from list views with Exists() annotation)
         # This avoids N+1 queries when listing multiple events
