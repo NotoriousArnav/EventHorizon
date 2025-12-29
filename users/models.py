@@ -36,30 +36,43 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         """Override save to compress avatar image before saving."""
-        if self.avatar and hasattr(self.avatar, "file"):
-            try:
-                # Get original file size
-                original_size = self.avatar.size
+        # Only compress if this is a new upload, not on every save
+        # Check if avatar is a fresh upload by looking for InMemoryUploadedFile or TemporaryUploadedFile
+        if self.avatar:
+            from django.core.files.uploadedfile import (
+                InMemoryUploadedFile,
+                TemporaryUploadedFile,
+            )
 
-                # Compress the image (max 5MB, quality 85)
-                compressed_file, compressed_size = compress_image(
-                    self.avatar.file, max_size_mb=5, quality=85, max_dimension=2048
-                )
+            # Only compress if this is a newly uploaded file
+            is_new_upload = isinstance(
+                self.avatar.file, (InMemoryUploadedFile, TemporaryUploadedFile)
+            )
 
-                # Replace the avatar with compressed version
-                self.avatar = compressed_file
+            if is_new_upload:
+                try:
+                    # Get original file size
+                    original_size = self.avatar.size
 
-                # Log compression stats
-                logger.info(
-                    f"Avatar compressed for user {self.user.username}: "
-                    f"{format_bytes(original_size)} -> {format_bytes(compressed_size)} "
-                    f"({(1 - compressed_size / original_size) * 100:.1f}% reduction)"
-                )
-            except Exception as e:
-                # If compression fails, log error but continue with original image
-                logger.error(
-                    f"Failed to compress avatar for user {self.user.username}: {str(e)}"
-                )
+                    # Compress the image (max 5MB, quality 85)
+                    compressed_file, compressed_size = compress_image(
+                        self.avatar.file, max_size_mb=5, quality=85, max_dimension=2048
+                    )
+
+                    # Replace the avatar with compressed version
+                    self.avatar = compressed_file
+
+                    # Log compression stats
+                    logger.info(
+                        f"Avatar compressed for user {self.user.username}: "
+                        f"{format_bytes(original_size)} -> {format_bytes(compressed_size)} "
+                        f"({(1 - compressed_size / original_size) * 100:.1f}% reduction)"
+                    )
+                except Exception as e:
+                    # If compression fails, log error but continue with original image
+                    logger.error(
+                        f"Failed to compress avatar for user {self.user.username}: {str(e)}"
+                    )
 
         super().save(*args, **kwargs)
 
